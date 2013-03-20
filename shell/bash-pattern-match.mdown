@@ -15,6 +15,7 @@ echo "${FILE##*.}"  #gz
 ```
 
 - change prefix of several file names: 
+
 ```bash
 $ ls
 old old.c old.tar.gz

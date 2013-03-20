@@ -39,12 +39,12 @@ Except for *quit*,we can also press `Ctrl+D` to exit.They can also be used for q
 
 ```bash
 $echo 'limits'|bc  
-BC_BASE_MAX     = 2147483647
-BC_DIM_MAX      = 16777215
-BC_SCALE_MAX    = 2147483647
-BC_STRING_MAX   = 2147483647
-MAX Exponent    = 2147483647
-Number of vars  = 32767
+BC_BASE_MAX    = 2147483647
+BC_DIM_MAX     = 16777215
+BC_SCALE_MAX   = 2147483647
+BC_STRING_MAX  = 2147483647
+MAX Exponent   = 2147483647
+Number of vars = 32767
 ```
 
 ###3. Batch Mode:
@@ -79,12 +79,12 @@ These operations demand `-l` option.Combination of these function will lead to m
 
 Functions |   Meanings   |     Notes    |
 :--------:|  :--------:  |:------------:|
-s(x)      |   [;sin(x);]   | x in radians
-c(x)      |   [;cos(x);]   | x in radians
-a(x)      |   [;arc(x);]   | return radians
-l(x)      |   [;ln(x);]    | natural logarithm
-e(x)      |   [;e ^x ;]    | exponential function
-j(n,x)    |   [;J_n(x);]   | Bessel function
+s(x)      |   [;sin(x);] | x in radians
+c(x)      |   [;cos(x);] | x in radians
+a(x)      |   [;arc(x);] | return radians
+l(x)      |   [;ln(x);]  | natural logarithm
+e(x)      |   [;e ^x ;]  | exponential function
+j(n,x)    |   [;J_n(x);] | Bessel function
 
 ```bash
 scale=10;4/3*a(1)

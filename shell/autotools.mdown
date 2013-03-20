@@ -91,6 +91,7 @@ An example taken frome [this page](http://www.ezloo.com/2008/04/gnu_autotools.ht
 #2 directories, 5 files
 ```
 - hello.c
+
 ```c
 include "include/print.h"
 int main(void)
@@ -100,10 +101,12 @@ int main(void)
 } 
 ```
 - include/print.h
+
 ```c
 void print ( char *s );
 ```
 - lib/print.c
+
 ```c
 #include "../include/print.h"
 #include<stdio.h>
@@ -113,6 +116,7 @@ void print(char *string)
 }
 ```
 - Makefile.am
+
 ```bash
 SUBDIRS = lib
 AUTOMAKE_OPTIONS = foreign
@@ -121,12 +125,14 @@ hello_SOURCES = hello.c
 hello_LDADD = ./lib/libprint.a
 ```
 - /lib/Makefile.am
+
 ```bash
 noinst_LIBRARIES = libprint.a
 libprint_a_SOURCES = print.c ../include/print.h
 ```
 
 ###After `autoscan`
+
 ```bash
 .
 ├── autoscan.log                               #log file
@@ -145,6 +151,7 @@ libprint_a_SOURCES = print.c ../include/print.h
 Notes:old version use `configure.in`
 
 ###After `aclocal`
+
 ```bash
 .
 ├── aclocal.m4                                ###
@@ -165,6 +172,7 @@ Notes:old version use `configure.in`
 ```
 
 ###After `autoconf`
+
 ```bash
 .
 ├── aclocal.m4
@@ -188,6 +196,7 @@ Notes:old version use `configure.in`
 ```
 
 ###After `autoheader`
+
 ```bash
 .
 ├── aclocal.m4
@@ -212,6 +221,7 @@ Notes:old version use `configure.in`
 ```
 
 ###After `automake --add-missing`
+
 ```bash
 .
 ├── aclocal.m4
@@ -241,6 +251,7 @@ Notes:old version use `configure.in`
 ```
 
 ###After `./configure`
+
 ```bash
 .
 ├── aclocal.m4
@@ -276,6 +287,7 @@ Notes:old version use `configure.in`
 ```
 
 ###After `make`
+
 ```bash
 .
 ├── aclocal.m4
