@@ -42,7 +42,7 @@ done
   volatile int *vm2[12][12]; // 2-D array of pointers to volatile int
   ```
 
-###`const` return type is only meaningful for _pointer/reference_("container")
+### `const` return type is only meaningful for _pointer/reference_("container")
 
 [Should useless type qualifiers on return types be used, for clarity?](http://stackoverflow.com/questions/1579435/should-useless-type-qualifiers-on-return-types-be-used-for-clarity/1579459#1579459)
 
