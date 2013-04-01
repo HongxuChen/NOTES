@@ -321,6 +321,8 @@ lcd{path}` globally
 
 1. Explore the File System with netrw  
 
+1. Save Files to Nonexistent directories  
+
 1. Save a File as the Super User  
 
 1. Keep Your Fingers on the Home Row  
@@ -480,13 +482,15 @@ recently. <kbd>:changes</kbd> can be used to see changes.
 1. Use the \V Literal Switch for Verbatim Searches  
 
 1. Use Parentheses to Capture Submatches(TODO)  
-    ```I love Paris in the
+
+    ```
+    I love Paris in the
     the spring time.
     ```
 
 1. Stake the Boundaries of a Word(TODO)  
 
-1. Stake the Boundaries of a Match(TODO)__
+1. Stake the Boundaries of a Match(TODO)  
 
 1. Escape Problem Characters(TODO)  
 
@@ -501,27 +505,244 @@ field:<kbd>C-r C-w</kbd>
 1. Count the Matches for the Current Pattern: `:%s///gn`
 
 1. Offset the curosr to the End of a Search Match  
-```
-Aim to learn a new programmming language each year.
-Which language did you pick up last year?
-Which languages would you like to learn?
-```
+    ```
+    Aim to learn a new programmming language each year.
+    Which language did you pick up last year?
+    Which languages would you like to learn?
+    ```
 `/lang/e<CR>` and `.` to append _uage_ to _lang/langs_ .
 
 1. Operate on a Complete Search Match(TODO)  
-```ruby
-class XhtmlDocument < XmlDocument; end
-class XhtmlTag < XmlTag; end
-```
+    ```ruby
+    class XhtmlDocument < XmlDocument; end
+    class XhtmlTag < XmlTag; end
+    ```
 
 1. Create Complex Patterns by Iterating upon Search History(TODO)  
-```
-This string contains a 'quoted' word.
-This string contains "two" quoted "word".
-This "string doesn't make things easy".   #vim-surround would fail on this sentence!
-```
+    ```
+    This string contains a 'quoted' word.
+    This string contains "two" quoted "word".
+    This "string doesn't make things easy".   #vim-surround would fail on this sentence!
+    ```
 
 1. Search for the Current Visual Selection  
-```
-She sells sea shells by the sea shore.
-```
+    ```
+    She sells sea shells by the sea shore.
+    ```
+
+1. Meet the Substitute Command  
+    ```
++----------------+-----------------------------------+
+|\r              |inset a carriage return            |
++----------------+-----------------------------------+
+|\1              |insert the first submatch          |
++----------------+-----------------------------------+
+|\2              |insert the second submatch[and so  |
+|                |on, up to \9]                      |
++----------------+-----------------------------------+
+|\0              |insert the entire matched pattern  |
++----------------+-----------------------------------+
+|&               |insert the entire matched pattern  |
++----------------+-----------------------------------+
+|~               |use {string} from the previous     |
+|                |invocation of :substitute          |
++----------------+-----------------------------------+
+|\={Vimscript}   |evaluate [Vimscript] expression:   |
+|                |use result as replacement {string} |
++----------------+-----------------------------------+
+
+    ```
+
+1. Find and Replace Every Match in a File  
+
+1. Eyeball Each Substitution  
+    ```
+    ...We're waiting for content before the site can go live...
+    ...If you are content with this, let's go ahead with it...
+    ...We'll launch as soon as we have the content...
+    ```
+
+1. Reuse the Last Search Pattern(TODO)  
+
+1. Replace with the Contents of a Register(TODO)  
+
+1. Repeat the Previous Substitute Command(TODO)  
+
+1. Rearrange CSV Fields Using Submatches(TODO)  
+
+1. Perform Arithmetic on the Replacement(TODO)__
+
+1. Swap Two or More Words(TODO)  
+
+1. Find and Replace Across Multiple Files(TODO)  
+
+1. Meet the Global Command(TODO)  
+
+1. Delete Lines Containing a Pattern(TODO)  
+
+1. Collect TODO Items in a Register  
+
+1. Alphabetize the Properties of Each Rule in a CSS File  
+
+1. Meet ctags  
+   tag files begin with a few lines of metadata. Body:keyword, filename+address
+
+1. Configure Vim to Work with ctags  
+
+1. Navigate Keyword Definitions with Vim's Tag Navigation Commands  
+
+    ```
+    +-----------------------------------+-----------------------------------+
+    |:tag {keyword}                     |jump to 1st tag that matches       |
+    +-----------------------------------+-----------------------------------+
+    |:tjump {keyword}                   |prompt user to select from multiple|
+    |                                   |matches for {keyword}              |
+    +-----------------------------------+-----------------------------------+
+    |:pop(or <C-t>)                     |jump back                          |
+    +-----------------------------------+-----------------------------------+
+    |:tag                               |advance through tag history        |
+    +-----------------------------------+-----------------------------------+
+    |:tnext                             |next match                         |
+    +-----------------------------------+-----------------------------------+
+    |:tprev                             |previous match                     |
+    +-----------------------------------+-----------------------------------+
+    |:tlast                             |last match                         |
+    +-----------------------------------+-----------------------------------+
+    |:tselect                           |prompt user to choose from tag     |
+    |                                   |match list                         |
+    +-----------------------------------+-----------------------------------+
+    
+    ```
+
+1. Compile Code Without Leaving Vim  
+    `:make` would do the make if there is a Makefile, `:make!` preserves the cursor.
+    
+1. Browse the Quickfix List  
+
+    ```
+    +----------+----------------------------+
+    |:cnext    |next item                   |
+    +----------+----------------------------+
+    |:cprev    |previous item               |
+    +----------+----------------------------+
+    |:cfirst   |first item                  |
+    +----------+----------------------------+
+    |:clast    |last item                   |
+    +----------+----------------------------+
+    |:cnfile   |first item in next file     |
+    +----------+----------------------------+
+    |:cpfile   |last item in previous file  |
+    +----------+----------------------------+
+    |:cc N     |nth item                    |
+    +----------+----------------------------+
+    |:copen    |open quickfix               |
+    +----------+----------------------------+
+    |:cclose   |close quickfix              |
+    +----------+----------------------------+
+    ```
+Note:support _count_, such as `:5cnext`.
+
+
+1. recall Results from a Previous Quickfix List  
+`:colder`, `:cnewer`.
+
+1. Customize the External Compiler(TODO)  
+
+1. Call grep Without Leaving Vim(TODO)  
+
+1. Customize the grep Program(TODO)  
+
+1. Grep with Vim's Internal Search Engine(TODO)  
+
+1. Meet Vim's Keyword Autocompletion  
+
+    ```
+    +------------------------------+------------------------------+
+    |<C-n>                         |generic keywords              |
+    +------------------------------+------------------------------+
+    |<C-x><C-n>                    |current buffer                |
+    +------------------------------+------------------------------+
+    |<C-x><C-i>                    |included file keywords        |
+    +------------------------------+------------------------------+
+    |<C-x><C-]>                    |tags file keyword             |
+    +------------------------------+------------------------------+
+    |<C-x><C-k>                    |dictionary lookup             |
+    +------------------------------+------------------------------+
+    |<C-x><C-l>                    |whole line                    |
+    +------------------------------+------------------------------+
+    |<C-x><C-f>                    |filename                      |
+    +------------------------------+------------------------------+
+    |<C-x><C-o>                    |omni-completion               |
+    +------------------------------+------------------------------+
+    ```
+
+1. Work with the Autocomplete Pop-Up Menu  
+    ```
+    +------------------------------+------------------------------+
+    |<C-y>                         |accept currently selected     |
+    |                              |match                         |
+    +------------------------------+------------------------------+
+    |<C-e>                         |revert to the originally typed|
+    |                              |text(exit from auto-completin)|
+    +------------------------------+------------------------------+
+    |<C-h>(and <BS>)               |Del one character from current|
+    |                              |match                         |
+    +------------------------------+------------------------------+
+    |<C-l>                         |add one char from current     |
+    |                              |match                         |
+    +------------------------------+------------------------------+
+    |{char}                        |stop completion and insert    |
+    |                              |{char}                        |
+    +------------------------------+------------------------------+
+    ```
+
+1. Understand the Source Keywords  
+
+1. Autocomplete Words from the Dictionary  
+
+1. Autocomplete Entire Lines  
+
+1. Autocomplete Filenames  
+
+1. Autocomplete with Context Awareness  
+
+1. Spell Check Your Work  
+
+    ```
+    +-------+------------------------------+
+    |]s     |next spelling err             |
+    +-------+------------------------------+
+    |[s     |previous spelling err         |
+    +-------+------------------------------+
+    |z=     |suggest corrections for       |
+    |       |current word                  |
+    +-------+------------------------------+
+    |zg     |add current word to spell file|
+    +-------+------------------------------+
+    |zw     |remove current word from spell|
+    |       |file                          |
+    +-------+------------------------------+
+    |zug    |revert `zg`/`zw` command for  |
+    |       |current word                  |
+    +-------+------------------------------+
+    
+    ```
+    
+1. Use Alternate Spelling Dictionaries  
+    ```Viml
+    :set spell
+    :set spelllang=zh_CN    "need downloading
+    ```
+
+1. Add Words to the Spell File  
+    ```Viml
+    setlocal spelllang=en_US
+    setlocal spellfile=~/.vim/spell/en.utf-8.add
+    setlocal spellfile=~/books/practical_vim/jargon.utf-8.add
+    ```
+
+1. Fix Spelling Errors from Insert Mode  
+<kbd>C-x C-s</kbd>, <kbd>C-x s</kbd>(but <kbd>C-s</kbd> always fails for xterm)
+    ```
+    Your mum has a mustache.
+    ```
