@@ -1,0 +1,81 @@
+A Slightly Deeper Look at KLEE
+
+* What is klee?
+** symbolic execution tool
+*** automatic test case generation
+*** find potentional bugs(if there is user asserts)
+*** check tool equivalence
+** bitcode instruction interpreter
+*** just like the standard lli in llvm
+*** interprete symbolic value
+
+* How does klee work?
+** (take tr.bc as an example)
+** take llvm compiler generated bitcode as input
+*** llvm-gcc-4.2/clang2.9
+** construct symbolic CLI arguments
+*** CLI tools always contains so many options/arguments
+** call constrain solver STP when hitting a branch
+** select what path to execute next
+*** random path/coverage-optimized
+** check whether symbolic value would cause error
+** generate concrete test cases for /argv/
+
+* What arguments to symbolicly execute(posix runtime)?
+** --posix-runtime
+** options begin with - or -- (specified in c programs)
+*** --sym-args
+*** ls -lF
+** arguments that are treated as regex strings
+*** --sym-args
+*** tr "abc" "ABC"
+** arguments that are file-related
+*** regular files/sockets/device, --sym-files
+*** rm -rf ~/test/a /usr/bin
+** specified output(TO BE CONFIRMED)
+*** --sym-stdout
+
+* How to deal with runtime environment?
+** KLEE models system call APIs
+*** performance advantages, coding complexity
+*** standard library contains many functions
+** using Uclibc(in posix-runtime)
+*** code is compiled into llvm compatible library
+*** KLEE link the user bitcode with the library and generate another bitcode file
+*** KLEE interprete newly generated code
+*** much less external function(still contains since KLEE cannot deal with inline asm)
+
+* Symbolic Execution using STP
+** Maps Symbolic value to concrete examples
+*** {i<10, j=8} => {i=2, j=8}
+** FORK on branches
+*** with copy-on-write
+
+* query optimization
+** expression rewriting
+*** x*2^n == x<<n
+** simplify constraint set
+*** x<10 ... x=5
+** constraint independence
+*** -use-independent-solver
+*** {i<j, j<20, k>0} , i=20
+** counter-example cache
+*** -cex-cache-exp,-cex-cache-try-all,-no-prefer-cex,-use-cex-cache, -use-fast-cex-solver
+*** {i<10, i=10}->empty implies {i<10, i=10, j=12}->empty
+*** {i<10,j=8}->{i=5, j=8} implies {i<10}->{i=5, j=8}
+*** {i<10, j=8}->{i=5, j=8} probably {i<10, j=8, i!=3}->{i=5, j=8}
+
+* benchmarks
+** GNU coreutils
+** BUSYBOX coreutils
+** MINIX+BUSYBOX
+** GNU coreutils VS BUSYBOX coreutils
+** HiStar OS kernel
+
+* patch validation
+** generate bitcode files of bug+patch versions
+** run slicing pass according to RB-scope with each version
+** Instrument klee sensitive bitcode to each version
+*** klee_make_symbolic, klee_assume, klee_assert
+** Combine two versions  into one bitcode file
+** run klee to check whether assert has been invoked
