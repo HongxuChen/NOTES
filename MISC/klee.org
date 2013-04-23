@@ -1,4 +1,5 @@
-A Slightly Deeper Look at KLEE
+#+OPTIONS: toc:1 creator:nil H:4
+#+TITLE: A Slightly Deeper Look at KLEE
 
 * What is klee?
 ** symbolic execution tool
@@ -8,7 +9,6 @@ A Slightly Deeper Look at KLEE
 ** bitcode instruction interpreter
 *** just like the standard lli in llvm
 *** interprete symbolic value
-
 * How does klee work?
 ** (take tr.bc as an example)
 ** take llvm compiler generated bitcode as input
@@ -21,7 +21,7 @@ A Slightly Deeper Look at KLEE
 ** check whether symbolic value would cause error
 ** generate concrete test cases for /argv/
 
-* What arguments to symbolicly execute(posix runtime)?
+* What args to symbolicly execute(posix runtime)?
 ** --posix-runtime
 ** options begin with - or -- (specified in c programs)
 *** --sym-args
@@ -79,7 +79,6 @@ A Slightly Deeper Look at KLEE
 *** klee_make_symbolic, klee_assume, klee_assert
 ** Combine two versions  into one bitcode file
 ** run klee to check whether assert has been invoked
-
 
 * resources from mail lists:
 ** How does KLEE store and track the symbolic states?

@@ -742,7 +742,7 @@ Note:support _count_, such as `:5cnext`.
     ```
 
 1. Fix Spelling Errors from Insert Mode  
-<kbd>C-x C-s</kbd>, <kbd>C-x s</kbd>(but <kbd>C-s</kbd> always fails for xterm)
+<kbd>C-x C-s</kbd>, <kbd>C-x s</kbd>(but <kbd>C-s</kbd> might fail for xterm)
     ```
     Your mum has a mustache.
     ```

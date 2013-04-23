@@ -1,5 +1,2 @@
-#+TITLE: writing gnu emacs extensions
-
-
-
+#+TITLE: Writing Gnu Emacs Extensions
 
