@@ -1,8 +1,8 @@
-###generate 5 passwords with the length of 5
+### generate 5 passwords with the length of 5
 ```bash
 pwgen 10 -N5 
 ```
-###sort process by cmd name
+### ort process by cmd name
 ```bash
 ps -e --sort cmd
 ```
@@ -14,25 +14,25 @@ ps -ef | grep PROCESS | grep -v grep | awk '{print $2}' | xargs kill -9
 ```bash
 ps -eo pid --no-headers   #ps -e | awk '{print $1}'
 ```
-###print outputs to console and files
+### print outputs to console and files
 ```bash
 (cmd | tee stdout.log) 3>&1 1>&2 2>&3 | tee stderr.log
 ```
-###used in scripts, get self name
+### used in scripts, get self name
 ```bash
 basename "$(test -L "$0" && readlink "$0" || echo "$0")"
 ```
-###Print all lines of files in a certain directory
+### Print all lines of files in a certain directory
 ```bash
 (find ./ -name '*.java' -print0 | xargs -0 cat) | wc -l
 ```
 
-###sort file by file length
+### sort file by file length
 ```bash
 find . -name "*.sh" | awk -F"/" '{ print length($NF),$NF} | "sort -nr" }'
 ```
 
-###Remove executable
+### Remove executable
 ```bash
 #remove files do not containing a dot(should use *ls* instead of *rm* first)
 ls | grep -v "\." | xargs rm
@@ -44,11 +44,11 @@ find . -perm /111 -delete
 find . -perm /ugo+x -delete
 find . -perm +100 -type f -delete
 ```
-###Find broken symlinks and delete them
+### Find broken symlinks and delete them
 ```bash
  find . -type l -exec test ! -e {} \; -delete
 ```
-###Generate thumbnails of jpg images
+### Generate thumbnails of jpg images
 ```bash
 $ for i in *.JPG ; do ( djpeg -scale 1/16 -ppm "${i}" | pnmscale -pixels 50246 | cjpeg -optimize -progressive > /preview/"${i%%.*}".jpeg ) ; done
 ```
@@ -69,7 +69,7 @@ cut -d: -f1 /etc/passwd      # view all users
 cut -d: -f1 /etc/group       # all groups
 ```
 
-###turn off ipv6(debian)
+### turn off ipv6(debian)
 ```bash
 #append /etc/sysctl.conf with the following
 net.ipv6.conf.all.disable_ipv6 = 1
@@ -77,22 +77,36 @@ net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
 ```
 
-###using sudowith an alias
+### using sudowith an alias
 ```bash
 alias sudo='sudo ' #a blank!
 ```
 
-###Close shell keeping all subprocess running
+### Close shell keeping all subprocess running
 ```bash
 disown -a && exit
 ```
 
-###Display the top ten memory usage running processes
+### Display the top ten memory usage running processes
 ```bash
 ps aux | sort -nk +4 | tail
 ```
 
-###list `.conf` sorted by size
+### list `.conf` sorted by size
 ```
 ls -lSrp | grep [^/]$ | grep [\.]conf$ | head -n 5
+```
+
+### recover corrupted tar.gz file
+http://www.urbanophile.com/arenn/coding/gzrt/gzrt.html
+```
+gzrecover corrupted-file.tar.gz
+cpio -F corrupted-file.tar.gz.recovered -i -v
+```
+
+### find the deleted but still taking place files
+```
+sudo su <<EOF
+lsof |grep deleted
+EOF
 ```

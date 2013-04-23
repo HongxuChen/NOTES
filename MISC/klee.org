@@ -79,3 +79,10 @@ A Slightly Deeper Look at KLEE
 *** klee_make_symbolic, klee_assume, klee_assert
 ** Combine two versions  into one bitcode file
 ** run klee to check whether assert has been invoked
+
+
+* resources from mail lists:
+** How does KLEE store and track the symbolic states?
+*** KLEE stores a set of ExecutionState objects that contain the complete program state (address space snapshot, program counter, call stack/registers, etc.) for each execution path along the exploration frontier. The values stored in the address space snapshot and stack registers are symbolic expressions (or, in the case of concrete values, simple constants).
+** How does KLEE translate the symbolic states to STP?
+*** KLEE uses an internal representation (http://klee.llvm.org/KQuery.html) to build expression trees based on symbolic values. The STPSolver class uses the STPBuilder class to translate this representation to STP's format using STP's C API. This happens at conditional branch instructions, symbolic pointer dereferences, etc.

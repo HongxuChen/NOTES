@@ -1,0 +1,59 @@
+#+TITLE: Symbolic Execution
+The link is here[fn:1]
+[fn:1] http://www.cs.umd.edu/class/fall2011/cmsc631/lectures/sym.pdf
+
+* One issue: Abstraction
+** ~abstraction~ lets us scale and model all possible runs, but introduces conservatism
+** =*-sensitivities= attempt to deal with this, not enough
+*** flow, context, path, field, etc.
+** static analysis abstraction \neq developer abstraction
+
+* Symbolic Execution[King, CACM 1976]
+** Testing works, but each only explores ONE possible execution
+** symbolic execution generalizes testing
+*** allows *unknown* symbolic variables in evaluation
+**** e.g. y=\alpha, assert(f(y)==2*y-1)
+*** =fork= symbolic executor if execution path depends on *unknown*
+#+BEGIN_SRC c
+int f(int x){
+  if(x>0)
+    return 2*x-1;
+  else
+    return 10;
+}
+#+END_SRC
+
+* Symbolic Exexcution Example
+int a = \alpha, b = \beta, c = \gamma;
+#+BEGIN_SRC c
+#include <assert.h>
+int x = 0, y = 0, z = 0;
+if(a){
+  x=-2;
+}
+if(b<5){
+  if(!a&&c){
+    y=1;
+  }
+  z=2;
+}
+assert(x+y+z!=3);
+#+END_SRC
+
+| path condition | pass | x+y+z |
+|----------------+------+-------|
+| \alpha\wedge(\beta<5)        | Y    |  0/1  |
+| \alpha\wedge(\beta\ge5)        | Y    |  0    |
+| \not\alpha\wedge(\beta<5)\wedge\gamma     | N    |  3    |
+| \not\alpha\wedge(\beta<5)\wedge\not\gamma    | Y    |  2    |
+| \not\alpha\wedge(\beta\ge5)       | Y    |  0    |
+
+* Why Is This Possible?
+** SAT,SMT(Satisfiability Modulo Theories,SAT++)
+*** Z3, STP, Yices
+** Recent success: bug finding
+
+
+
+
+

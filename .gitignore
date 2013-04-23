@@ -4,6 +4,25 @@
 *.tar.xz
 *.html
 
+
 *~
 \#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
+
 .*.s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+a.out
