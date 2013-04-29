@@ -1,0 +1,23 @@
+# -*- mode: makefile-gmake; compile-command: "make -f Makefile2"; -*-
+
+CC = gcc
+OPTION = -O2 -g -Wall
+INCLUDES = -I.
+OBJS = main.o module.o
+EXECUTABLE = target_bin
+.PHONY: all clean list
+
+all: $(OBJS)
+	@echo "Building.."
+	${CC} ${OPTION} ${INCLUDES} ${OBJS} -o ${EXECUTABLE}
+
+%.o: %.c
+	$(CC) ${OPTION} -c $*.c ${INCLUDES}
+
+list:
+	@echo $(shell ls)
+
+clean:
+	@echo "Cleaning up.."
+	-rm -rf *.o
+	-rm ${EXECUTABLE}

@@ -1,0 +1,11 @@
+* text extraction
+- [[https://github.com/jiminoc/goose/wiki][Goose]](Scala)
+- [[https://github.com/peterc/pismo][pismo]](Ruby)
+- [[https://code.google.com/p/boilerpipe/][boilerpipe]] (Java)
+- [[https://code.google.com/p/justext/][justext]] (Python)
+- [[http://tomazkovacic.com/blog/56/list-of-resources-article-text-extraction-from-html-documents/][Article text extraction from HTML documents]]
+- [[https://news.ycombinator.com/item?id%3D2526127][HN discussion]]
+- [[https://code.google.com/p/arc90labs-readability/downloads/detail?name%3Dreadability.js&can%3D2&q%3D][readability]]
+- [[http://stackoverflow.com/questions/4283418/instapaper-like-algorithm][Instapaper-like]]
+- [[http://jericho.htmlparser.net/docs/javadoc/net/htmlparser/jericho/Renderer.html][Renderer]]
+- [[http://readwrite.com/2011/03/19/text-extraction][Overview of Text Extraction Algorithms]] 

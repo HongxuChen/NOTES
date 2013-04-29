@@ -1,0 +1,8 @@
+#+TITLE: An Introduction to LOCATE
+
+http://www.thegeekstuff.com/2012/03/locate-command-examples/
+
+** locate does not search files on disk, but searches for file paths in ~/var/lib/mlocate/mlocate.db~, and the corresponding configuration file is ~/etc/updatedb.conf~. Some settings:
+**** PRUNEFS: whitespace-separated list of file system types(~/etc/mtab~) which should not be scanned, case-insensitive.
+**** PRUNENAMES: whitepace-separated list of directory names(without paths), only directories can be specified, NO pattern mechanism is used.
+**** PRUNPATHS: whitespace-separated list of path names of directories

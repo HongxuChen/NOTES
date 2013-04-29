@@ -1,8 +1,8 @@
-### generate 5 passwords with the length of 5
+### generate 5 passwords with the length of 10
 ```bash
 pwgen 10 -N5 
 ```
-### ort process by cmd name
+### sort process by cmd name
 ```bash
 ps -e --sort cmd
 ```
@@ -77,11 +77,6 @@ net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
 ```
 
-### using sudowith an alias
-```bash
-alias sudo='sudo ' #a blank!
-```
-
 ### Close shell keeping all subprocess running
 ```bash
 disown -a && exit
@@ -109,4 +104,14 @@ cpio -F corrupted-file.tar.gz.recovered -i -v
 sudo su <<EOF
 lsof |grep deleted
 EOF
+```
+
+### convert YAML to JSON
+```
+python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < file.yaml > file.json
+```
+
+## previous until exit status is 0
+```
+!!; while [ $? -ne 0 ]; do !!; done
 ```
