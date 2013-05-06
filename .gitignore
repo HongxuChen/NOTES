@@ -4,6 +4,8 @@
 *.tar.xz
 *.html
 
+*.mm
+
 
 *~
 \#*\#
@@ -60,3 +62,5 @@ a.out
 *.xdy
 *.tdo
 *.pdf
+
+moonbox

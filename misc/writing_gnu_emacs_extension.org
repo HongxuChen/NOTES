@@ -1,2 +1,0 @@
-#+TITLE: Writing Gnu Emacs Extensions
-

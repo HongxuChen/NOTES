@@ -1,0 +1,18 @@
+#+TITLE: Emacs tricks
+
+* docstring
+#+BEGIN_SRC elisp
+(defun test-docstring nil
+  "This function does nothing but show how to use docstring.
+1. a clickable url should be like URL `http://www.google.com';
+2. links to emacs Info Doc: Info node `(emacs) Gnus' and Info node `(elisp)Font Lock Basics';
+3. a function or variable should be like `goto-char' or `ac-clang-flags', while the function arguments should be all capitical like LINE;
+4. generate keymaps: for `ido-find-file' it is \\[ido-find-file], which is the first one; and the keymap list for some mode: 
+\\{c-mode-map}
+"
+(interactive)
+(message "you got it")
+  )
+#+END_SRC
+
+

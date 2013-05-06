@@ -1,0 +1,1842 @@
+#+TITLE:    Emacs Configuration
+#+AUTHOR:    Sami Airaksinen
+#+EMAIL:     samiaira@gmail.com
+#+DATE:      2010-04-01 Thu
+#+DESCRIPTION: Describing my emacs configuration in self documenting way via org-mode.
+#+KEYWORDS:  emacs org configure
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport notangle 
+#+LINK_UP:
+#+LINK_HOME: 
+
+## This org file has no effect but I can learn org options from it.
+
+* Motivation
+
+  Tired to have to ssh copy my emacs environment everywhere. This now
+  acts as a single sync point to me and window to other people how I
+  use my emacs.
+
+* Requirements
+
+  Currently this is running in ubuntu 12.04, GNU Emacs 24.1.1
+  (x86_64-pc-linux-gnu, GTK+ Version 2.24.10) of 2012-07-17 on
+  lawrencium, modified by Debian and Org-mode version 7.8.02. I have
+  had some org-mode related problems with newer org-mode version such
+  as 7.9.1 and 7.8.11.
+
+* Bootstrapping
+  
+  Here are utility scripts that help initialize emacs to vanilla
+  environment. Currently I'm only interested in ubuntu environments
+  (currently about 12.04).
+
+  #+begin_src shell-script :tangle bootstrap-packages.sh :shebang #!/bin/bash
+    echo "bootstarpping emacs 24.1 repositories and installing packages ..."
+    sudo add-apt-repository ppa:cassou/emacs 
+    sudo apt-get update
+    sudo apt-get purge emacs-snapshot-common emacs-snapshot-bin-common emacs-snapshot emacs-snapshot-el emacs-snapshot-gtk emacs23 emacs23-bin-common emacs23-common emacs23-el emacs23-nox emacs23-lucid auctex emacs24 emacs24-bin-common emacs24-common
+    sudo apt-get install emacs24 emacs24-el
+  #+end_src
+
+  Here is a little script that helps you to set the repo to be your
+  .emacs.d.
+
+  #+begin_src shell-script :tangle bootstrap-configurations.sh :shebang #!/bin/bash
+    echo "replacing emacs configuration points in your system, backuping originals..."
+    ln -svb $PWD ~/.emacs.d
+    ln -svb ~/.emacs.d/personal/.emacs-custom.el ~/.emacs-custom.el
+  #+end_src
+
+** emacs entry points
+
+   Environmental file to be sourced so that emacs can be accessed as painlessly as
+   possible from terminal.
+
+   #+begin_src shell-script :tangle emacs.env
+     echo "setting emacs environments..."
+     
+     VISUAL="`which emacsclient` -c --alternate-editor="
+     EDITOR=`which emacs`
+     export VISUAL;
+     export EDITOR;
+     
+     alias m="`which emacsclient` --alternate-editor="
+     alias mc="`which emacsclient` -c --alternate-editor="
+   #+end_src
+
+* Add directories to load-path					  :loadpaths:
+  :PROPERTIES:
+  :ID:       baa6a26c-d73e-4ff7-9336-48540ef1396e
+  :END:
+  
+  [[file:init.el::%3B%3B%3B%20init.el%20---%20Where%20all%20the%20magic%20begins][All begans here.]] This approach was inspired from documentation of
+  org-mode babel library. I use demonized version of the emacs so that
+  it only does source tangling and loading of this configuration once.
+
+  #+BEGIN_SRC emacs-lisp
+    (defvar personal-directory)
+    (setq personal-directory "~/.emacs.d/personal/")
+    
+    (defun personal-place (suffix)
+      (concat personal-directory suffix))
+    
+    (setq user-full-name "Sami Airaksinen"
+          user-email "samiaira@gmail.com")
+        
+    (add-to-list 'load-path "~/.emacs.d/lib")
+    (add-to-list 'load-path "~/.emacs.d/personal")
+  #+END_SRC
+
+** Packaging manager configurations
+
+   I would like have stuff from MELPA
+
+   #+begin_src emacs-lisp
+     (require 'package)
+     (add-to-list 'package-archives
+                  '("melpa" . 
+                    "http://melpa.milkbox.net/packages/")
+                  '("marmalade" .
+                    "http://marmalade-repo.org/packages/"))
+     (package-initialize)
+   #+end_src
+
+* Emacs encoding 						   :encoding:
+  :PROPERTIES:
+  :ID:       35debd80-6f3d-497b-9764-9d498a8efbd3
+  :END:
+
+  Setting emacs encoding to get correct characters /(reason: maybe some old
+  char bug...)/.
+
+  #+BEGIN_SRC emacs-lisp
+    (load-library "iso-transl")
+    
+    (setq
+     current-language-environment "UTF-8"
+     default-input-method "rfc1345")    
+  #+END_SRC 
+
+* Setting key layout 						  :ergoemacs:
+  :PROPERTIES:
+  :ID:       0b350314-71d4-45a7-975e-a00c723a333f
+  :END:
+  
+  Load ErgoEmacs keybinding and turn the minor mode to be always
+  on. This is a sub module in my emacs configrations, see more details
+  about this mode from, https://code.google.com/p/ergoemacs/
+
+  #+BEGIN_SRC emacs-lisp
+    (setenv "ERGOEMACS_KEYBOARD_LAYOUT" "us") ; US
+    (load-file "~/.emacs.d/lib/ergoemacs-keybindings-5.1/ergoemacs-mode.el")
+    (ergoemacs-mode 1)
+  #+END_SRC
+* Visual appearance 					       :colors:frame:
+  :PROPERTIES:
+  :tangle: personal/appearance.el
+  :ID:       91c548cb-7d88-47cc-bfff-667f8d02a769
+  :END:
+ 
+  #+BEGIN_SRC emacs-lisp
+    ;;; appearance.el --- Visual customization and fixes for bugs
+    (setq 
+     inhibit-startup-screen t
+     initial-buffer-choice t
+     frame-background-mode nil
+     use-file-dialog nil
+     elscreen-display-tab nil
+     frame-title-format '(buffer-file-name "Emacs: %b (%f)" "Emacs: %b"))
+      
+    (set-face-attribute 'default nil :height 100 :family "Liberation Mono")
+    (show-paren-mode t)
+    (column-number-mode t)
+    (tool-bar-mode -1)
+    
+    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/ujelly")
+    (load-theme 'ujelly t)
+     
+    ;; fixing tool-bar-mode bug in daemon...
+    (add-hook 'before-make-frame-hook '(lambda () (tool-bar-mode -1)))
+    
+  #+END_SRC
+
+** Default frame
+   :PROPERTIES:
+   :ID:       0b0487c2-c94c-48f5-bcdf-16448183059d
+   :END:
+   This is the configuration creates 80x50 frame in the current
+   desktop. It sets colors of cursor, background and foreground. Also
+   font is redefined here. Fixes some of the daemon issues.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq default-frame-alist
+         '((width . 80) (height . 50)
+           (cursor-color . "red")
+           (foreground-color . "AntiqueWhite2")
+           (background-color . "black")
+           (vertical-scroll-bars)
+           (font . "-raster-Liberation Mono-medium-r-normal-*-*-100-*-*-*-*-*-1")))
+   #+END_SRC
+
+** Frame fixing function				      :keys:function:
+   :PROPERTIES:
+   :ID:       76e18ca4-aa11-4515-8f85-2c27a7b6441a
+   :END:
+    Function to fix fram to prefixed size.
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key (kbd "C-x W") 'fix-horizontal-size)
+     
+     (defun fix-frame-horizontal-size (width)
+       "Set the frame's size to 80 (or prefix arg WIDTH) columns wide."
+       (interactive "P")
+       (if window-system
+           (set-frame-width (selected-frame) (or width 80))
+         (error "Cannot resize frame horizontally: is a text terminal")))
+     
+     ;; functions to fix buffer window to fixed size
+     (defun fix-window-horizontal-size (width)
+       "Set the window's size to 80 (or prefix arg WIDTH) columns wide."
+       (interactive "P")
+       (enlarge-window (- (or width 80) (window-width)) 'horizontal))
+     
+     ;; actual function to be called
+     (defun fix-horizontal-size (width)
+       "Set the window's or frame's width to 80 (or prefix arg WIDTH)."
+       (interactive "P")
+       (condition-case nil
+           (fix-window-horizontal-size width)
+         (error 
+          (condition-case nil
+              (fix-frame-horizontal-size width)
+            (error
+             (error "Cannot resize window or frame horizontally"))))))
+     
+     ;; modularize this to loadable module
+     (provide 'appearance)
+   #+END_SRC
+** Set font for all
+   Apparently not used yet...
+   #+BEGIN_EXAMPLE
+   (if (>= emacs-major-version 23) 
+   (modify-all-frames-parameters
+   '((font . "Dejavusans"))))   
+   #+END_EXAMPLE
+* Navigation							      :tramp:
+  :PROPERTIES:
+  :tangle: personal/navigation.el
+  :ID:       2014f91b-f9e1-478d-abe4-f5278aaf678f
+  :END:
+
+  Defining navigation preferences. I want easy navigation between
+  screens and my mouse cursor to follow wheel motions.
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; navigation.el --- navigation modes and customization for them
+    
+    ;;moving between windows easily
+    (when (fboundp 'windmove-default-keybindings)
+      (windmove-default-keybindings))
+    
+      (setq
+       mouse-wheel-follow-mouse t)
+    
+    (setq-default save-place t)
+    (require 'saveplace)    
+  #+END_SRC
+
+** smex
+   :PROPERTIES:
+   :ID:       06fddeab-b0f5-42c6-81ae-2581245a5d85
+   :END:
+   Smex is ido for M-x.
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'smex)                                                  
+     (setq smex-save-file (personal-place "smex.save")) ;; keep my ~/ clean 
+     (smex-initialize)                                                               
+     (global-set-key (kbd "C-M-A") 'smex)
+   #+END_SRC
+** Bookmarks
+   :PROPERTIES:
+   :ID:       bd61817e-e87b-41b2-bf50-65657354143f
+   :END:
+   Keeping my personal information in one location. 
+
+   #+BEGIN_SRC emacs-lisp
+     (setq 
+      bookmark-default-file (concat personal-directory "bookmarks") ;; keep my ~/ clean
+      bookmark-save-flag 1)                        ;; autosave each change
+   #+END_SRC
+** ELScreen
+   :PROPERTIES:
+   :ID:       a70b9270-5577-4fbf-bc47-1ff4d13ba16a
+   :END:
+   #+BEGIN_SRC emacs-lisp
+     ;; Windowskey+PgUP/PgDown switches between elscreens
+     (global-set-key (kbd "<s-prior>") 'elscreen-previous)
+     (global-set-key (kbd "<s-next>")  'elscreen-next)
+     
+     ;;load ELScreen modification
+     (load "elscreen" "ElScreen" t)
+   #+END_SRC
+** Window layout navigator
+   :PROPERTIES:
+   :ID:       f5acbbfb-9248-4b5b-844e-fafeef95aca1
+   :END:
+   Configuring winner mode. With this you can search through your
+   previous window layouts.
+  
+   #+BEGIN_SRC emacs-lisp
+     ;;winner mode - search trough window frame history
+     (require 'winner)
+     (setq winner-dont-bind-my-keys t) ;; default bindings conflict with org-mode
+     
+     (global-set-key (kbd "<C-s-left>") 'winner-undo)
+     (global-set-key (kbd "<C-s-right>") 'winner-redo)
+     
+     (winner-mode t) ;; turn on the global minor mode
+   #+END_SRC
+** Trivial modes 						   :external:
+   :PROPERTIES:
+   :ID:       f0451863-024e-419d-a585-9cbef7b4d94c
+   :END:
+   Function to define new trivial modes. This means that buffer is
+   opened by external program.
+
+   #+BEGIN_SRC emacs-lisp
+     (defun define-trivial-mode(mode-prefix file-regexp &optional command)
+       (or command (setq command mode-prefix))
+       (let ((mode-command (intern (concat mode-prefix "-mode"))))
+         (fset mode-command
+               `(lambda ()
+                  (interactive)
+                  (toggle-read-only t)
+                  (start-process ,mode-prefix nil
+                                 ,command (buffer-file-name))
+                  (kill-buffer (current-buffer))))
+         (add-to-list 'auto-mode-alist (cons file-regexp mode-command))))
+   #+END_SRC
+
+   These define programs that will launch file when opened
+
+   #+BEGIN_SRC emacs-lisp
+     (define-trivial-mode "ooffice" "\\.ods$")
+     (define-trivial-mode "evince" "\\.pdf$")
+   #+END_SRC
+** Tramp
+   
+   #+BEGIN_SRC emacs-lisp 
+     (setq tramp-auto-save-directory (personal-place "tramp-auto-save/")
+           tramp-persistency-file-name (personal-place "tramp"))
+     
+     (set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
+     
+     (provide 'navigation)
+   #+END_SRC
+* Editing 							   :textedit:
+  :PROPERTIES:
+  :tangle: personal/editing.el
+  :END:
+  #+BEGIN_SRC emacs-lisp
+    ;;; editing.el --- global edit configurations
+    (global-set-key [f4] 'orgstruct-mode)
+  #+END_SRC
+
+** Killring
+   :PROPERTIES:
+   :ID:       110c319a-30cc-4144-8ff8-cfb47d4c256b
+   :END:
+   New features for copy and cut functions. Non selection applys
+   current method to whole line. Also fixes clipboard disconnection
+   between X and emacs.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq x-select-enable-clipboard t 
+           interprogram-paste-function 'x-cut-buffer-or-selection-value)
+     
+     ;;New kill ring features
+     (defadvice kill-ring-save (before slick-copy activate compile)
+       "When called interactively with no active region, copy a single
+       line instead."
+       (interactive 
+        (if mark-active (list (region-beginning) (region-end))
+          (message  "Copied line") 
+          (list (line-beginning-position) 
+                (line-beginning-position 2)))))
+     
+     (defadvice kill-region (before slick-cut activate compile)
+       "When called interactively with no active region, kill a single line instead."
+       (interactive
+        (if mark-active (list (region-beginning) (region-end))
+          (list (line-beginning-position)
+                (line-beginning-position 2)))))
+   #+END_SRC
+** yasnippet
+   Works, but not with r-autoyas functionality. Could it be somekind
+   of version incombability.
+
+   #+begin_src elisp
+     (require 'yasnippet)
+     ;;(yas-minor-mode-on) this triggers some symbol loop error...
+   #+end_src
+   
+** Custom tools
+   Tools to edit, analyse and manipulate buffer content.
+*** Count words
+    :PROPERTIES:
+    :ID:       ba9bfd5b-affb-42a4-855e-eb9bd8ad4780
+    :END:
+    Count words in the region.
+
+    #+BEGIN_SRC emacs-lisp
+      (defun count-words (start end)
+        "Print number of words in the region."
+        (interactive "r")
+        (save-excursion
+          (save-restriction
+            (narrow-to-region start end)
+            (goto-char (point-min))
+            (count-matches "\\sw+"))))
+    #+END_SRC
+
+*** wc
+    :PROPERTIES:
+    :ID:       7e6e3506-c369-4218-aa0d-f903e9775450
+    :END:
+    wc like function in the emacs.
+
+    #+BEGIN_SRC emacs-lisp
+      (defun wc (&optional start end)
+        "Prints number of lines, words and characters in region or whole buffer."
+        (interactive)
+        (let ((n 0)
+              (start (if mark-active (region-beginning) (point-min)))
+              (end (if mark-active (region-end) (point-max))))
+          (save-excursion
+            (goto-char start)
+            (while (< (point) end) (if (forward-word 1) (setq n (1+ n)))))
+          (message "%3d %3d %3d" (count-lines start end) n (- end start))))
+    #+END_SRC
+
+*** buffer to PDF
+    :PROPERTIES:
+    :ID:       c645ded2-7fc1-47a2-a0d7-a4679531680a
+    :END:
+    Copies buffer content to pdf file.
+
+    #+BEGIN_SRC emacs-lisp
+      (defun print-to-pdf ()
+        (interactive)
+        (ps-spool-buffer-with-faces)
+        (switch-to-buffer "*PostScript*")
+        (write-file "/tmp/tmp.ps")
+        (kill-buffer "tmp.ps")
+        (setq cmd (concat "ps2pdf14 /tmp/tmp.ps " (buffer-name) ".pdf"))
+        (shell-command cmd)
+        (shell-command "rm /tmp/tmp.ps")
+        (message (concat "Saved to:  " (buffer-name) ".pdf")))
+      
+      (provide 'editing)
+    #+END_SRC
+
+* Buffers 							     :buffer:
+  :PROPERTIES:
+  :tangle: personal/buffers.el
+  :END:
+
+   #+BEGIN_SRC emacs-lisp
+     ;;; buffers.el --- Buffer management customization
+   #+END_SRC
+** Keybindings
+   :PROPERTIES:
+   :ID:       f3e6a958-306a-4cff-9f4a-f3d894eb656b
+   :END:
+   Fundamental key configurations, using all the time.
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key (kbd "C-<f5>") 'toggle-truncate-lines)
+     (global-set-key (kbd "M-<f5>") 'revert-buffer) 
+     (global-set-key (kbd "C-S-o") 'dired) 
+     (global-set-key (kbd "C-M-a") 'execute-extended-command)
+  #+END_SRC
+
+** iBuffer filters and grouping
+   :PROPERTIES:
+   :ID:       f80afec5-ecbd-4d9f-9327-7e908d288a3c
+   :END:
+
+   iBuffer makes buffer browsing prettier and more interactive. You
+   can filter buffers to groups by predefined filters. 
+
+   #+BEGIN_SRC emacs-lisp
+     (defun ibuffer-create-group-filter (name filters)
+       "Utility function to create wanted filter-group."
+       (let ((group-filter `(,name)))
+         (mapc
+          (lambda(element)
+            (add-to-list 'group-filter (cdr (assoc element ibuffer-filters)) t))
+          filters)
+         group-filter))     
+   #+END_SRC
+	 
+*** Filters
+
+    Here is defined basic filters that can be used to construct filter
+    view by =ibuffer-create-group-filter= function.
+
+    #+begin_src emacs-lisp
+      (setq ibuffer-filters 
+            '(
+              ;;mail buffers
+              (mail . ("Mail"
+                       (or
+                        (mode . message-mode)
+                        (mode . mail-mode)
+                        (mode . wl))))
+              ;; Opened manuals
+              (woman . ("WoMan"
+                        (or
+                         (mode . woman-mode)
+                         (mode . info-mode))))
+              ;; ESS related buffers
+              (ess . ("ESS"
+                      (or
+                       (mode . inferior-ess-mode)
+                       (mode . ess-help-mode)
+                       (name . "\\*S objects\\*"))))
+              ;; My unsorted Latex buffers
+              (latex . ("LaTeX" 
+                        (mode . latex-mode)))
+              ;; IRC Channels 
+              (erc . ("ERC"
+                      (mode . erc-mode)))
+              ;; Unsorted shells
+              (shells . ("Shells"
+                         (or
+                          (mode . shell-mode)
+                          (mode . term-mode)
+                          (mode . eshell-mode))))
+              ;; all unsorted dired buffers goes here 
+              (dired . ("Dired"
+                        (mode . dired-mode)))
+              ;; all org-related buffers
+              (org . ("Org" 
+                      (or 
+                       (name . "\\*Org *")
+                       (mode . org-mode))))
+              ;; magit buffers
+              (git . ("magit"
+                      (name . "\\*magit")))
+              ;; school related filters
+              (dp . ("DP"
+                     (or
+                      (filename . "parallel.distributed.org")
+                      (filename . "/wrk/spin/"))))
+              (dip . ("DIP"
+                      (or
+                       (filename . "digital.image.prosessing.org")
+                       (filename . "/wrk/dip/"))))
+              ;;rest of the school buffers
+              (school . ("School Courses"
+                          (mode . org-mode)
+                          (filename . "/org/courses/")))
+              (emacs-conf . ("Emacs configuration"
+                             (or
+                              (filename . "/emacs.seed/")
+                              (filename . ".emacs.d/")
+                              (filename . "~/.erc-bouncers.el"))))
+              ;; Here are the buffers that are not in projectXYZ gategory
+              (programming . ("Programming" 
+                              (or
+                               (mode . groovy-mode)
+                               (mode . php-mode)
+                               (mode . sgml-mode)
+                               (mode . sh-mode)
+                               (mode . c-mode)
+                               (mode . perl-mode)
+                               (mode . python-mode)
+                               (mode . emacs-lisp-mode))))))
+    #+end_src
+
+*** Filter Views
+    
+    Here is the configuration of ibuffer views. First the views are
+    defined and with hook the default view is set.
+
+    #+begin_src emacs-lisp
+      (setq ibuffer-saved-filter-groups
+            `(,(ibuffer-create-group-filter "default" '(emacs-conf mail erc shells git school org dired))
+              ,(ibuffer-create-group-filter "communication" '(shells mail erc dired))
+              ,(ibuffer-create-group-filter "development" '(git woman shells programming dired))
+              ,(ibuffer-create-group-filter "documentation" '(org latex dired))
+              ,(ibuffer-create-group-filter "statistics" '(org ess dired))
+              ,(ibuffer-create-group-filter "school" '(erc shells dp dip school org dired))))
+      
+      (add-hook 'ibuffer-mode-hook
+                (lambda ()
+                  (ibuffer-switch-to-saved-filter-groups "default")))
+    #+end_src
+
+** Automatic Jobs
+   :PROPERTIES:
+   :ID:       1dc45409-a53f-461f-9f8a-fa25ce60b848
+   :END:
+   
+   Here will be configured jobs that are done automatically (cronjob
+   like things, but inside emacs).
+
+*** Clean							   :midnight:
+    Keeps my buffer listing reasonable by removing unused buffers. 
+    #+BEGIN_SRC emacs-lisp
+      (require 'midnight)
+      (setq clean-buffer-list-kill-never-regexps '("\\.org$" "^#" "^!"))
+      (run-at-time "23:00" (timer-duration "24 hours") 'clean-buffer-list)      
+     #+END_SRC
+
+*** Save 							     :backup:
+    :PROPERTIES:
+    :ID:       eb29537a-b163-4dea-8296-1d7f59e8899b
+    :END:
+    Using .backups folder as a base folder where to place emacs
+    buffers autosave files. Here we also configure my desktop
+    recording, which reopens my last buffers when I close and reopen
+    my emacs.
+    
+    #+BEGIN_SRC emacs-lisp
+      (savehist-mode 1)
+      (desktop-save-mode t)
+         
+      (setq savehist-file (personal-place "savehist-history") 
+       make-backup-files t
+       backup-directory-alist (quote ((".*" . "~/.backups/emacs.buffers/"))))
+      
+    #+END_SRC
+
+** IDO mode								:ido:
+   :PROPERTIES:
+   :ID:       b938a519-3f49-42d9-af84-790076772b3b
+   :END: 
+   Library to enhance usability with buffer and directory
+   listings. Works mostly in minibuffer area.
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'ido)                      ; ido is part of emacs 
+     
+     (ido-mode t)                        ; for both buffers and files
+     
+     (setq 
+      ido-ignore-buffers               ; ignore these guys
+      '("\\` " "^\*Mess" "^\*Back" ".*Completion" "^\*Ido")
+      ido-work-directory-list '("~" "~/Documents")
+      ido-case-fold  t                 ; be case-insensitive
+      ido-use-filename-at-point nil    ; don't use filename at point (annoying)
+      ido-use-url-at-point nil         ;  don't use url at point (annoying)
+      ido-enable-flex-matching t       ; be flexible
+      ido-max-prospects 6              ; don't spam my minibuffer
+      ido-confirm-unique-completion t) ; wait for RET, even with unique completion
+   #+END_SRC
+
+** Buffer renaming						     :rename:
+   CLOSED: [2010-07-09 Fri 20:47]
+   :PROPERTIES:
+   :ID:       5ccb4517-4463-4414-97ee-62cc8e1b664a
+   :END:
+   When opening a buffer which has same name, this configuration will
+   keep buffers unique. It will reorganize names if one the buffers
+   has been killed. It will also ignore "system" buffers (starting
+   with *-symbol).
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'uniquify)
+     
+     (setq 
+      uniquify-buffer-name-style 'post-forward
+      uniquify-separator "::"
+      uniquify-after-kill-buffer-p t
+      uniquify-ignore-buffers-re "^\\*")
+
+     (provide 'buffers)
+   #+END_SRC
+
+* Org-mode 					      :calendar:organization:
+  :PROPERTIES:
+  :tangle: personal/org-personal.el
+  :ID:       4974bdf3-cdc1-4575-a6b0-eda1fbbea47c
+  :END:
+  
+  Org-mode, God mode, devils-advocate, nicknames are many. This is
+  probably most usefull mode I have ever met. This has converted me to
+  be full emacs fanatic and still keeps me amazed. This configuration
+  file is powered by org-babel, so you can see its power.
+
+  Unsorted options that have not a good place to be ...
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; org-personal.el --- personalization to my org
+    (setq org-directory "~/org")
+  #+END_SRC
+
+** Agenda							     :agenda:
+   :PROPERTIES:
+   :ID:       93bc11e3-e6d8-4790-92e7-3c6433164f23
+   :END:
+
+   Agenda is tool for scheduling your events in selected org-buffers,
+   so called agenda-files.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq 
+      org-agenda-start-on-weekday 0 
+      org-agenda-show-all-dates t
+      org-agenda-tags-column -102
+      org-agenda-files (concat org-directory "/agenda.files.txt")
+      org-agenda-text-search-extra-files '(agenda-archives)
+      org-agenda-time-grid '((daily require-timed)
+                             "--------------------"
+                             (800 1000 1200 1400 1600 1800 2000 2200))
+      org-agenda-todo-ignore-with-date t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-timestamp-if-done t
+      org-agenda-repeating-timestamp-show-all t)
+      
+     (add-hook 'org-agenda-mode-hook '(lambda () (hl-line-mode 1)))
+   #+END_SRC
+
+*** To do flow in tasks						       :todo:
+
+    Here is described how todo keywords are flowd when task is
+    progressed. Clocking is triggered to change the tasks
+    status. Logging of different state changes are defined in last
+    configuration.
+
+    #+BEGIN_SRC emacs-lisp
+      (setq 
+       org-clock-in-switch-to-state '(lambda (state) 
+                                       (cond
+                                        ((string= state "TODO") "STARTED")
+                                        ((string= state "ISSUE") "OPEN")
+                                        (t "STARTED")))
+       org-clock-out-switch-to-state '(lambda (state) 
+                                       (cond
+                                        ((string= state "STARTED") "WAITING")
+                                        ((string= state "OPEN") "ISSUE")
+                                        (t "WAITING")))
+       ;; org-stuck-projects '("LEVEL=2-REFILE-WAITING|LEVEL=1+REFILE/!-DONE-CANCELLED-OPEN" nil ("NEXT") "")
+       org-enforce-todo-dependencies t
+       org-todo-keywords '((sequence "TODO(t)" "STARTED(s!)" "|" "DONE(d!/!)")
+                           (sequence "WAITING(w/!)" "SOMEDAY(S@/!)" "|" "CANCELLED(c@/!)")
+                           (sequence "ISSUE(i!)" "OPEN(O@/!)" "|" "DUBLICATE(D@!)" "WONTFIX(W@!)" "CLOSED(C@!)" "REJECTED(R@!)")))
+    #+END_SRC    
+
+**** Show TODO children of the headline 			   :function:
+
+     Define function that lists TODOs in current subtree.
+
+     #+BEGIN_SRC emacs-lisp
+       (defun org-show-todo-children ()
+         (interactive)
+         (org-narrow-to-subtree)
+         (org-show-todo-tree nil)
+         (widen))
+     #+END_SRC
+
+*** Time and date 
+    :PROPERTIES:
+    :ID:       7869dadb-9b6b-4cee-a533-67b66f68b95a
+    :END:
+    
+    Here I set custom properties for my clocking efforts and customize
+    my time and date options.
+
+    #+BEGIN_SRC emacs-lisp
+      (setq 
+       org-deadline-warning-days 15
+       org-drawers '("PROPERTIES" "LOGBOOK" "CLOCK")
+       org-clock-into-drawer "CLOCK"
+       org-clock-out-remove-zero-time-clocks t
+       org-clock-persist 'history
+       org-global-properties '(("Effort_ALL" . "0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 10:00 20:00 50:00"))
+       org-log-into-drawer t
+       ;; org-clock-sound "/usr/local/lib/alert1.wav"
+       org-log-done 'time)
+    #+END_SRC
+
+*** Icalendar Exporting
+    :PROPERTIES:
+    :ID:       53deba29-b662-4d4b-85e8-1abb548ce317
+    :END:
+
+    This configurations defines region and user specific properties to
+    potential exports in .ics format of the agenda view.
+
+    #+BEGIN_SRC emacs-lisp
+      (setq
+       org-icalendar-categories '(all-tags)
+       org-icalendar-combined-name "Sami Airaksinen"
+       org-icalendar-include-body 500
+       org-icalendar-include-todo t
+       org-icalendar-store-UID t
+       org-icalendar-timezone "Europe/Helsinki"
+       org-icalendar-use-deadline '(todo-due event-if-todo event-if-not-todo)
+       org-icalendar-use-scheduled '(todo-due event-if-todo event-if-not-todo))
+    #+END_SRC
+
+** Babel							:programming:
+   :PROPERTIES:
+   :ID:       32d924ad-7c2e-40d0-873c-a1a65e2a72d7
+   :END:
+
+   Babel enables source code evaluation of many different languages
+   inside the org mode buffer. Evolution is fast and current version
+   enables at least following features:
+   - interactive code editing inside the org-mode buffer
+   - source code evaluation with I/O redirection
+   
+   #+BEGIN_SRC emacs-lisp
+     (org-babel-do-load-languages 
+      'org-babel-load-languages
+      '(
+        (octave . t)
+        (R . t) 
+        (sh . t)))
+   #+END_SRC
+
+   #+results:
+
+** Block Wrapping function					   :function:
+   :PROPERTIES:
+   :ID:       47878164-fc7a-4a7c-b42d-ac323827d859
+   :END:
+   
+   Inserts marked region between org-mode custom block, interactive.
+
+   #+BEGIN_SRC emacs-lisp
+     (defun org-block-wrap-region(start end)
+       "Wraps current region between predefined prefix-endfix strings. by: Sami Airaksinen"
+       (interactive "r")
+       (let ((markup (read-string "define markup: " nil nil '("SRC" "EXAMPLE" "LaTeX" "CENTER" "QUOTE" "VERSE"))) 
+             (start-region-char (if (eq (char-after start) ?\n) nil "\n"))
+             (end-region-char (if (eq (char-before end) ?\n) nil "\n")))
+         (let ((start-mark (concat "#+BEGIN_" markup start-region-char)) (end-mark (concat end-region-char "#+END_" markup)))
+           ;; adding to end
+           (goto-char end)
+           (insert end-mark)
+           ;; adding to start
+           (goto-char start)
+           (insert start-mark))))
+   #+END_SRC
+
+** Buffer Encryptions						 :encryption:
+   
+   Forcing encryption for headlines that have encrypt tag. 
+   
+   *UPDATE* : <2012-09-15 Sat> 
+
+   Currently require of org-crypt is moved outside of this module, [[*Loading%20of%20different%20aspects][see
+   here]].
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'org-save-all-org-buffers '(lambda() org-encrypt-entries))
+   #+END_SRC
+
+** Column mode							     :column:
+   
+   Org modes column face. Layouts headline at its childs to fixed
+   table where you can edit easily its properties. 
+
+   #+BEGIN_SRC emacs-lisp
+     (setq
+      org-columns-default-format "%50ITEM(Task) %7TODO(ToDo) %10TAGS(Context) %10Effort(Effort){:} %10CLOCKSUM")
+     ; org-columns-modify-value-for-display-function '(lambda (column-title value)
+     ;                                                  nil))
+   #+END_SRC
+
+*** DONE Font change prevention						:BUG:
+    CLOSED: [2011-04-21 Thu 17:38]
+    :LOGBOOK:
+    - State "DONE"       from ""           [2011-04-21 Thu 17:38]
+    :END:
+    
+    Make sure that a fixed-width face is used when we have a column
+    table. This occurs if emacs daemon is used.
+
+    #+BEGIN_SRC emacs-lisp
+      (when (and (fboundp 'daemonp) (daemonp))
+        (add-hook 
+         'org-mode-hook 
+         '(lambda ()
+            (when (fboundp 'set-face-attribute)
+              (set-face-attribute 
+               'org-column nil
+               :height (face-attribute 'default :height)
+               :family (face-attribute 'default :family))))))
+    #+END_SRC
+
+** Exporting 							      :latex:
+   :LOGBOOK:
+   - State "QUOTE"      from ""           [2011-04-20 Wed 22:35]
+   :END:
+   :PROPERTIES:
+   :ID:       3f573495-cd35-4749-97af-f81a89ce40f1
+   :END:
+   
+   Org-mode enables exports to different common formats. 
+
+*** Latex							  :templates:
+    
+    Latex exports needs header templates and conversion rules for
+    headlines.
+
+    #+BEGIN_SRC emacs-lisp
+      (setq 
+       org-export-latex-Image-default-option "width=hsize"
+       org-export-latex-classes '(
+                                  ("article" "\\documentclass[12pt,a4paper]{article}
+      \\usepackage[utf8]{inputenc}
+      \\usepackage[T1]{fontenc}
+      \\usepackage{graphicx}
+      \\usepackage[pdftex]{hyperref}"
+                                   ("\\section{%s}" . "\\section*{%s}") 
+                                   ("\\subsection{%s}" . "\\subsection*{%s}") 
+                                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}") 
+                                   ("\\paragraph{%s}" . "\\paragraph*{%s}") 
+                                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")) 
+                                  ("report" "\\documentclass[12pt,a4paper]{report}
+      \\usepackage[utf8]{inputenc}
+      \\usepackage[T1]{fontenc}
+      \\usepackage{graphicx}
+      \\usepackage{hyperref}" 
+                                   ("\\part{%s}" . "\\part*{%s}") 
+                                   ("\\chapter{%s}" . "\\chapter*{%s}") 
+                                   ("\\section{%s}" . "\\section*{%s}") 
+                                   ("\\subsection{%s}" . "\\subsection*{%s}") 
+                                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")) 
+                                  ("book" "\\documentclass[12pt,a4paper]{book}
+      \\usepackage[utf8]{inputenc}
+      \\usepackage[T1]{fontenc}
+      \\usepackage{graphicx}
+      \\usepackage{hyperref}" 
+                                   ("\\part{%s}" . "\\part*{%s}") 
+                                   ("\\chapter{%s}" . "\\chapter*{%s}") 
+                                   ("\\section{%s}" . "\\section*{%s}")
+                                   ("\\subsection{%s}" . "\\subsection*{%s}") 
+                                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")) 
+                                  ("aa" "\\documentclass[structabstract]{aa}
+      \\usepackage{txfonts}
+      \\usepackage{graphicx}
+      \\usepackage{longtable}
+      \\usepackage{hyperref}
+      \\usepackage{natbib} 
+      \\bibpunct{(}{)}{;}{a}{}{,}" 
+                                   ("\\section{%s}" . "\\section*{%s}") 
+                                   ("\\subsection{%s}" . "\\subsection*{%s}") 
+                                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}") 
+                                   ("\\paragraph{%s}" . "\\paragraph*{%s}") 
+                                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+       org-format-latex-header "\\documentclass[a4paper]{article}
+      \\usepackage{amssymb}
+      \\usepackage{amsmath}
+      \\usepackage{latexsym}
+      \\usepackage{fullpage}
+      \\pagestyle{empty}
+      \\usepackage[mathscr]{eucal}
+      \\usepackage[usenames]{color}")
+    #+END_SRC
+** Global keybindings 						       :keys:
+   :PROPERTIES:
+   :ID:       9aa1f33e-c3e7-4612-9ed4-483029e3ec94
+   :END:
+
+   The following key strokes are highly used and we want them to be
+   accessible from whole system.
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key (kbd "C-c a") 'org-agenda)
+     (global-set-key (kbd "C-c l") 'org-store-link)
+   #+END_SRC
+
+** Headline Editing						       :edit:
+   :PROPERTIES:
+   :ID:       f90379d7-b0cd-49d5-9de4-5056e211af22
+   :END:
+
+   Here will be configurations relating to Task refiling and archiving.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq
+      org-archive-location "archive/%s_archive::"
+      org-refile-targets '((org-agenda-files . (:maxlevel . 2))))
+   #+END_SRC   
+
+*** Remember and capture				      :remember:keys:
+   :PROPERTIES:
+   :ID:       162b1425-06f7-404d-9cb5-a927c0592e48
+   :END:
+   
+   Org-remember enables fast note taking. With a key stroke I can
+   start taking complex note with different instant configuration
+   options.
+
+   
+
+   #+BEGIN_SRC emacs-lisp
+     (setq 
+      org-default-notes-file (concat org-directory "/notes.org")
+      org-reverse-note-order t
+      org-remember-templates '(("Task" ?t "* TODO %^{task} %^G\n (creation: %u @ %a)\n\n %i%?" "refile.org" "Tasks")
+                                 ("Capture" ?c "* %?\n\tcreation: %u @ %a\n\n %i" "notes.org" "Capture")
+                                 ("Meeting" ?m "* %^{occasion}\n %^{at time}T @ %^{where} \n (creation: %u @ %a) \n\n %i \n %a" "refile.org" "Meetings")
+                                 ("Note" ?n "* %?\n (creation: %u @ %a)\n %i%!%&" "refile.org" "Ideas")))
+     
+     (org-remember-insinuate)
+     
+     (global-set-key (kbd "C-c r") 'org-remember)
+   #+END_SRC
+
+** Hooks							       :hook:
+   :PROPERTIES:
+   :ID:       e47b7948-6c4f-4eca-8bba-7e6347c834b9
+   :END:
+   
+   Defines org general mode hook that is applied when mode is
+   started. Here you can configure your environment even further.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'org-mode-hook '(lambda ()
+        (flyspell-mode 1)
+        (local-set-key (kbd "S-M-a") 'shell-command)
+        (local-set-key (kbd "M-e") 'backward-kill-word)
+        (local-set-key (kbd "M-r") 'kill-word)
+        (local-set-key (kbd "M-a") 'execute-extended-command)
+        (local-set-key (kbd "<f5>") 'org-agenda)
+	(local-set-key (kbd "C-c b") 'org-iswitchb)
+        (local-set-key (kbd "C-c W") 'org-block-wrap-region)))
+   #+END_SRC
+
+** Images in Buffers 						      :image:
+   
+   Minor mode that shows images directly in the org-buffer.
+
+   #+BEGIN_SRC emacs-lisp
+     ;; enable image mode first
+     (iimage-mode)
+     
+     ;; add the org file link format to the iimage mode regex
+     (add-to-list 'iimage-mode-image-regex-alist
+       (cons (concat "\\[\\[file:\\(~?" iimage-mode-image-filename-regex "\\)\\]")  1))
+     
+     ;; function to setup images for display on load
+     (defun org-turn-on-iimage-in-org ()
+       "display images in your org file"
+       (interactive)
+       (turn-on-iimage-mode)
+       (set-face-underline-p 'org-link nil))
+     
+     ;; function to toggle images in a org bugger
+     (defun org-toggle-iimage-in-org ()
+       "display images in your org file"
+       (interactive)
+       (if (face-underline-p 'org-link)
+           (set-face-underline-p 'org-link nil)
+           (set-face-underline-p 'org-link t))
+       (call-interactively 'iimage-mode))
+     
+     ;;  add a hook so we can display images on load
+     (add-hook 'org-mode-hook '(lambda () (org-turn-on-iimage-in-org)))
+   #+END_SRC
+
+** Linking							       :link:
+   
+   Linking is essential part of usefulness of org-mode. Buffers can
+   form effective data structure for your daily organizational
+   information. Here is configuration how links can be used.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-link-abbrev-alist
+           '(("google" . "http://www.google.com/search?q=")
+             ("ads" . "http://adsabs.harvard.edu/cgi-bin/nph-abs_connect?author=%s&db_key=AST")
+             ("wiki" . "http://en.wikipedia.org/wiki/")))
+   #+END_SRC
+
+** Mobile-org                                        :notangle:DESIGN:mobile:
+   SCHEDULED: <2010-08-27 Fri>
+   :LOGBOOK:
+   - State "WAITING"    from "WAITING"    [2010-08-26 Thu 22:57] \\
+     should be finnished next time.
+   - State "DONE"       from "STARTED"    [2010-08-26 Thu 22:57]
+   - State "STARTED"    from "TODO"       [2010-08-26 Thu 22:57]
+   :END:
+   :PROPERTIES:
+   :ID:       aeeaaee2-fce4-4e6f-9a53-0a6cbd55b946
+   :END:
+
+   Configure Mobile org using Ubuntu One.
+   
+   #+BEGIN_SRC emacs-lisp
+     (setq org-mobile-directory "~/org/mobile")
+     ;; Set to the name of the file where new notes will be stored
+     (setq org-mobile-inbox-for-pull "~/org/mobile/mobile-flagged.org")     
+   #+END_SRC
+** Tags 							       :tags:
+   :PROPERTIES:
+   :ID:       35016ca8-9504-4bd4-9467-160dcf87d71e
+   :END:
+   
+   Most frequently tags. I have couple of exclusive tag groups so if I
+   change the tag it will remove other group tag automatically.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq org-tag-alist '((:startgroup) ("@jira" . ?j) ("@errand" . ?e) ("@tkk" . ?t) ("@home" . ?h) ("@work" . ?w) (:endgroup)
+                      (:startgroup) ("RESEARCH" . ?r) ("PLAN" . ?p) ("DESIGN" . ?d) ("IMPLEMENT" . ?i) (:endgroup)
+                      (:startgroup) ("TASK" . ?t) ("STORY" . ?s) (:endgroup)
+                      (:startgroup) ("BUG" . ?b) ("FEATURE" . ?f) ("IMPROVEMENT" . ?I) (:endgroup)
+     
+                      ("ASSIGMENT" . ?a)
+                      ("APPOINTMENT" . ?A)
+                      ("PHONE" . ?P)
+                      ("BUY" . ?B)
+                      ("EMAIL" . ?E)))
+     
+     ;; modularize this personalization
+     (provide 'org-personal)
+   #+END_SRC
+* ERC-client 						      :communication:
+  :PROPERTIES:
+  :tangle: personal/erc-customs.el
+  :ID:       fe012277-e9e0-4c8a-be56-b4cf0dda6800
+  :END:
+  
+  ERC is emacs mode for IRC communications.
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; erc-customs.el --- Personal customization for ERC package
+    (require 'erc)
+  #+END_SRC
+
+** Bouncer and Identification					:irc:bouncer:
+   :PROPERTIES:
+   :ID:       a8dfc038-6065-43e1-a222-71ed8b9a74bb
+   :END:
+   
+   Define macro for creating Bouncer connection function.  
+
+   #+BEGIN_SRC emacs-lisp
+     ;;define bouncer connection tool
+     (defmacro asf-erc-bouncer-connect (command server port nick ssl pass)
+       "Create interactive command `command', for connecting to an IRC server. The
+        command uses interactive mode if passed an argument."
+       (fset command
+             `(lambda (arg)
+                (interactive "p")
+                (if (not (= 1 arg))
+                    (call-interactively 'erc)
+                  (let ((erc-connect-function ',(if ssl 
+                                                    'erc-open-ssl-stream
+                                                  'open-network-stream)))
+                    (erc :server ,server :port ,port :nick ,nick :password ,pass))))))
+    #+END_SRC
+*** Login proxy							:proxy:login:
+   
+    Here we define connections to my IRC-server. Server connections
+    are opened via already available ssh tunnel (provided by gSTM).
+
+    Alternative handling strategies
+    - different Tunnel manager or,
+    - tunneling with emacs commands
+    - opening ports from router for irssi-proxies
+
+    #+BEGIN_SRC emacs-lisp
+      ;; create connection functions to my irssi-proxy
+      ;; !! NOTE MESSAGES UNENCRYPTED !!!  
+      (setq erc-registered-bouncers '())
+      
+      (defun erc-add-bouncer (key bouncer)
+        "Adds bouncer with key to alist if not exists."
+        (setq erc-registered-bouncers (add-to-list 'erc-registered-bouncers `(,key . ,bouncer) nil 
+              (lambda (o1 o2)
+                (equal (car o1) (car o2))))))
+      
+      (defun erc-get-bouncers ()
+        erc-registered-bouncers)
+      
+      (defun erc-read-bouncer-properties (file)
+        (load file))
+      
+      (defun erc-bouncer-login ()
+        "Make connection with each registered bouncer connection."
+        (interactive)
+        (mapc
+         (lambda (current)
+           (funcall (cdr current)))
+           (erc-get-bouncers)))
+      
+      (defun erc-create-and-register-bouncers (bouncers)
+        "Creates bouncers for each element in bouncers
+      list. Assumes that properties are red for each symbol. ssl
+      not working at the moment."
+        (mapc
+         (lambda (current)
+           (erc-add-bouncer current (let  ((name 'current) 
+                                            (host (get current :host)) 
+                                            (port (get current :port))
+                                            (user (get current :user))
+                                            (ssl (get current :ssl))
+                                            (passwd (get current :passwd)))
+                                      `(lambda ()
+                                         (erc :server ,host :port ,port :nick ,user :password ,passwd)))))
+                                      bouncers))
+      
+      ;; setting login command for erc to my proxy 
+      (global-set-key [f2] 'erc-bouncer-login)
+      
+      (erc-read-bouncer-properties (personal-place ".erc-bouncers.el"))
+      
+      (erc-create-and-register-bouncers '(erc-irssi-ircnet
+                                          erc-irssi-linknet
+                                          erc-irssi-freenode))
+    #+END_SRC
+** Configurations						 :hooks:feel:
+   :PROPERTIES:
+   :ID:       25822595-28af-48b6-96bb-e18a0e72d9ed
+   :END:
+   
+   Currently ERC client-to-server logging isn't done and all the
+   connections to servers are done trough bouncer.
+
+   #+BEGIN_SRC emacs-lisp
+     ;;set erc variables
+     (setq 
+      erc-max-buffer-size 30000
+      erc-truncate-buffer-on-save t
+      erc-notice-highlight-type (quote all)
+      erc-notice-prefix ">>>> "
+      erc-prompt "WRITE HERE> "
+      erc-auto-query 'window-noselect)
+     
+     ;;enable autojoin
+     (erc-autojoin-mode t)
+     
+     ;;define some custom hook to truncate erc buffers correctly
+     (defvar erc-insert-post-hook)
+     (add-hook 'erc-insert-post-hook 'erc-truncate-buffer)
+   #+END_SRC
+
+** IRC custom commands					      :proxy:backlog:
+   :PROPERTIES:
+   :ID:       f77a3833-9ce6-4e21-975f-fa3e95a74dfb
+   :END:   
+   With this I will send ctcp message to my proxy which will feed me
+   the current backlog.
+
+   #+BEGIN_SRC emacs-lisp
+     (defun erc-cmd-BACKLOG ()
+       (erc-send-ctcp-message "-proxy-" "IRSSIPROXY BACKLOG SEND"))
+     
+     ;; module for my erc customs  
+     (provide 'erc-customs)
+   #+END_SRC
+* Programming 								:dev:
+  :PROPERTIES:
+  :tangle: personal/programming.el
+  :ID:       fcd88b7c-ed45-497d-aeb6-834866adef20
+  :END:
+  Here be things related to building software. 
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; programming.el --- different programming language mode configurations 
+    (require 'highlight-parentheses)
+    (require 'yasnippet-bundle)
+    (require 'chm-view)
+    (require 'pabbrev)
+
+    ;;optionally loading if found
+    (require 'ess-site nil 'no-error)
+    
+    (setq font-lock-maximum-decoration t)   
+    (global-font-lock-mode t)
+  #+END_SRC
+
+** Folding mode							   :notangle:
+   :PROPERTIES:
+   :tangle:   no
+   :END:
+
+   Enable code block folding as minor-mode
+
+   #+BEGIN_SRC emacs-lisp
+     ;;code folding
+     (load "folding" 'nomessage 'noerror)
+     (folding-add-to-marks-list 'haskell-mode "--{{{"  "--}}}"  nil t)
+     (folding-mode-add-find-file-hook)
+     (add-hook 'haskell-mode-hook 'folding-mode)
+     
+     (folding-add-to-marks-list 'tuareg-mode "(*{{{"  "(*}}}*)"  nil t)
+     (add-hook 'tuareg-mode-hook 'folding-mode)
+   #+END_SRC
+   
+** Compilation shell output
+   :PROPERTIES:
+   :ID:       0a531781-b266-4e1a-b990-16de6ef69628
+   :END: 
+   Settings of a compile output buffer/window
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key [f11] 'compile)
+     (global-set-key [f12] 'recompile)
+     
+     (setq compilation-scroll-output t
+           compilation-window-height 16)
+   #+END_SRC
+** C
+   :PROPERTIES:
+   :ID:       0c233791-6373-4ca6-baa9-17b036cb3b71
+   :END:
+
+   #+BEGIN_SRC emacs-lisp
+     ;;C-hook
+     (add-hook 'c-mode-hook
+       (lambda ()
+         (font-lock-add-keywords nil
+           '(("^[^\n]\\{80\\}\\(.*\\)$" 1 font-lock-warning-face t)))))
+   #+END_SRC
+
+** Fortran F90
+   :PROPERTIES:
+   :ID:       f0255480-7007-4ceb-990d-ba58ae7d757e
+   :END:
+
+   #+BEGIN_SRC emacs-lisp
+     ;; F90-hook
+     (add-hook 'f90-mode 'highlight-parentheses-mode) 
+     
+     ;; g95 to compilation mode
+     (eval-after-load "compile"
+       '(setq compilation-error-regexp-alist
+              (cons '("^In file \\(.+\\):\\([0-9]+\\)" 1 2)
+                    compilation-error-regexp-alist))) 
+   #+END_SRC
+
+** XREF								   :notangle:
+   :PROPERTIES:
+   :tangle:   no
+   :ID:       a07bca80-e2d1-4c34-beff-0acc8d6b580e
+   :END:
+
+   Xrefactory configuration part
+
+   #+BEGIN_SRC emacs-lisp
+     ;; some Xrefactory defaults can be set here
+     (defvar xref-current-project nil) ;; can be also "my_project_name"
+     (defvar xref-key-binding 'none) ;; can be also 'local or 'none
+     
+     (setq load-path (cons "/usr/lib/emacs/xref/emacs" load-path))
+     (setq exec-path (cons "/usr/lib/emacs/xref/" exec-path))
+     
+     (load "xrefactory")
+     
+     ;; end of Xrefactory configuration part ;;
+     (message "xrefactory loaded")
+   #+END_SRC
+
+** JDEE								   :notangle:
+   :PROPERTIES:
+   :tangle:   no
+   :ID:       36f569aa-66c4-4843-9af8-fde27ec66d79
+   :END:
+
+   #+BEGIN_SRC emacs-lisp
+     ;;JDEE configure
+     
+     ;; add to list JDEE stuff
+     (add-to-list 
+      'load-path (expand-file-name "/usr/local/jdee/jde-2.3.5.1/lisp"))
+     
+     (add-to-list 
+      'load-path (expand-file-name "/usr/local/jdee/cedet-1.0beta3b/common"))
+     
+     (add-to-list 
+      'load-path (expand-file-name "/usr/share/emacs/site-lisp/elib"))
+     
+     (load-file (expand-file-name "/usr/local/jdee/cedet-1.0beta3b/common/cedet.el"))
+     
+     ;; If you want Emacs to defer loading the JDE until you open a 
+     ;; Java file, edit the following line
+     (setq defer-loading-jde nil)
+     ;; to read:
+     (setq defer-loading-jde t)
+     (if defer-loading-jde
+         (progn
+           (autoload 'jde-mode "jde" "JDE mode." t)
+           (setq auto-mode-alist
+              (append
+               '(("\\.java\\'" . jde-mode))
+               auto-mode-alist)))
+       (require 'jde))
+     
+     ;;set some jde variables
+     (setq jde-jdk (quote ("sun 1.6.0.10"))
+           jde-jdk-registry (quote (("sun 1.6.0.10" . "/usr/lib/jvm/java-6-sun-1.6.0.10/") ("open 1.6.0" . "/usr/lib/jvm/default-java"))))
+     
+     ;; Sets the basic indentation for Java source files
+     ;; to two spaces.
+     (defun my-jde-mode-hook ()
+       (setq c-basic-offset 3))
+     
+     ;;make mode-hook
+     (add-hook 'jde-mode-hook 'my-jde-mode-hook)
+   #+END_SRC
+** Sage								   :notangle:
+   :PROPERTIES:
+   :tangle:   no
+   :ID:       3d5570c4-58c0-4c2d-be68-5622c2fe2ccd
+   :END:
+
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'load-path (expand-file-name "$SAGE_DATA/emacs"))
+     (require 'sage "sage")
+     (setq sage-command "$SAGE_ROOT/sage")
+     
+     ;; If you want sage-view to typeset all your output and have plot()
+     ;; commands inline, uncomment the following line and configure sage-view:
+     (require 'sage-view "sage-view")
+     (add-hook 'sage-startup-hook 'sage-view)
+     You can use commands like
+     (add-hook 'sage-startup-hook 'sage-view
+     'sage-view-disable-inline-output 'sage-view-disable-inline-plots)
+     ;; to have some combination of features.  In future, the customize interface
+     ;; will make this simpler... hint, hint!
+   #+END_SRC
+** Ruby								   :notangle:
+   :PROPERTIES:
+   :tangle:   no
+   :ID:       f6b056d1-fcd3-4ce4-a27b-e20e02d24239
+   :END:
+
+   #+BEGIN_SRC emacs-lisp
+     ;;add mode specific thingys when
+     (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode)) 
+     (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
+     
+     ;;create eval-buffer function
+     (defun ruby-eval-buffer () 
+       (interactive)
+       "Evaluate the buffer with ruby."
+       (shell-command-on-region (point-min) (point-max) "ruby"))
+     
+     ;;define ruby-mode-hook here
+     (defun my-ruby-mode-hook ()
+       (setq standard-indent 4)
+       (pabbrev-mode t)
+       (ruby-electric-mode t)
+       (define-key ruby-mode-map "\C-c\C-a" 'ruby-eval-buffer))
+     (add-hook 'ruby-mode-hook 'my-ruby-mode-hook)
+     
+     ;;load ruby libs when this file is loaded
+     (require 'ruby-mode)
+     (require 'ruby-electric)
+   #+END_SRC
+** Php
+   For debugging php files.
+   #+begin_src emacs-lisp
+     (require 'php-mode)
+   #+end_src
+** IDL
+   :PROPERTIES:
+   :ID:       36443582-7858-4ddd-823e-20279954eb78
+   :END:
+   #+BEGIN_SRC emacs-lisp
+     (setq idlwave-block-indent 4
+           idlwave-end-offset -4
+           idlwave-indent-parens-nested t)
+   #+END_SRC
+** Groovy
+   #+BEGIN_SRC emacs-lisp
+     ;;; use groovy-mode when file ends in .groovy or has #!/bin/groovy at start
+     (autoload 'groovy-mode "groovy-mode" "Groovy editing mode." t)
+     (add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
+     (add-to-list 'interpreter-mode-alist '("groovy" . groovy-mode))
+   #+END_SRC
+
+** Promela
+   Spin model checker uses promela as its programming language  
+   
+   #+begin_src emacs-lisp
+     (autoload 'promela-mode "promela-mode" "PROMELA mode" nil t)
+     (setq auto-mode-alist
+           (append
+            (list (cons "\\.promela$"  'promela-mode)
+                  (cons "\\.spin$"     'promela-mode)
+                  (cons "\\.pml$"      'promela-mode)
+                  ;; (cons "\\.other-extensions$"     'promela-mode)
+                  )
+            auto-mode-alist))
+   #+end_src
+** Slime
+   #+begin_src emacs-lisp
+     (setq inferior-lisp-program "/usr/bin/sbcl")
+     (add-to-list 'load-path "/usr/share/emacs/site-lisp/slime") ;; adding slime to load path
+     (require 'slime-autoloads)
+     (slime-setup '(slime-fancy))
+     
+     (provide 'programming)
+   #+end_src
+* Browsers 						       :internet:dev:
+  :PROPERTIES:
+  :tangle: personal/browsers.el
+  :ID:       65003ba9-ad67-481c-8f6f-df598c1222d3
+  :END:
+
+  Here be variables and things related to emacs-to-internet consept.
+  Should build function that asks which browers to start (ff/w3c)
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; browsers.el --- utilities to integrate browser actions to emacs buffers 
+    (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
+    
+    (global-set-key (kbd "C-x C-f") 'search-in-internet)
+    (global-set-key (kbd "C-x C-m") 'browse-url-at-point) ;;FUCKING REMEMBER THIS!!@!!
+    
+    (setq 
+     w3m-use-cookies t
+     browse-url-browser-function 'select-url-browser)
+   #+END_SRC
+** Browser selector 
+   :PROPERTIES:
+   :ID:       59784aa3-f23e-477c-851d-07349ada4f6c
+   :END:
+   Defining lazy evaluator which is called for every opened link.
+
+   #+BEGIN_SRC emacs-lisp
+     (setq available-browsers '(("default" browse-url-default-browser)
+                              ("firefox" browse-url-firefox)
+                              ("w3m" w3m-browse-url)))
+     
+     (defun select-url-browser (url &optional new-window)
+       (interactive)
+       (funcall (cadr (assoc (read-string 
+                              "Select Browser: " 
+                              (caar available-browsers)
+                              nil
+                              (mapcar 'car available-browsers)) available-browsers))
+                url new-window))
+   #+END_SRC
+** The custom search URLs
+   :PROPERTIES:
+   :ID:       034e629c-2adc-47ce-aeeb-85e9f4436e8e
+   :END:
+   Function that applies marked region to google search.
+
+   #+BEGIN_SRC emacs-lisp
+     ;; Variables
+     (defvar *internet-search-urls*
+       (quote ("http://www.google.com/search?ie=utf-8&oe=utf-8&q=%s"
+               "http://en.wikipedia.org/wiki/Special:Search?search="
+               "http://perldoc.perl.org/search.html?q=")))
+     
+     ;;; Search a query on the Internet using the selected URL.
+     (defun search-in-internet (arg)
+       "Searches the internet using the ARGth custom URL for the marked
+      text. If a region is not selected, prompts for the string to search
+      on. The prefix number ARG indicates the Search URL to use. By default
+      the search URL at position 1 will be used."
+       (interactive "p")
+     
+       ;; Some sanity check.
+       (if (> arg (length *internet-search-urls*))
+           (error "There is no search URL defined at position %s" arg))
+     
+       (let ((query                          ; Set the search query first.
+              (if (region-active-p)
+                  (buffer-substring (region-beginning) (region-end))
+                (read-from-minibuffer "Search for: ")))
+     
+             ;; Now get the Base URL to use for the search
+             (baseurl (nth (1- arg) *internet-search-urls*)))
+     
+         ;; Add the query parameter
+         (let ((url
+                (if (string-match "%s" baseurl)
+                    ;; If the base URL has a %s embedded, then replace it
+                    (replace-match query t t baseurl)
+                  ;; Else just append the query string at end of the URL
+                  (concat baseurl query))))
+     
+           (message "Searching for %s at %s" query url)
+           ;; Now browse the URL
+           (browse-url url))))
+     
+     (defun wiki-search ()
+       (search-in-internet 2))
+     
+     (defun perldoc-search ()
+       (search-in-internet 3))
+     
+     (provide 'browsers)
+   #+END_SRC
+   
+* ElNode 						 :services:async:tcp:
+  :PROPERTIES:
+  :tangle: personal/el-node-services.el
+  :END:
+
+  Elnode is a library that enables emacs to expose itself as user
+  defined web services.
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; el-node-services.el --- Example usage of el-node library
+    (require 'elnode)
+    
+    ;; possible configurations
+    (global-set-key (kbd "<C-f12>") 'elnode-init-services)
+    (global-set-key (kbd "<C-S-f12>") 'elnode-stop-services)    
+  #+end_src
+
+** Utility tools
+   Used to Store and retrieve configuration data of services.
+
+   #+begin_src emacs-lisp
+     (defun elnode-add-service-to-init (handler port host)
+       (setq elnode-local-handlers (add-to-list 'elnode-local-handlers handler))
+       (setplist handler (list :port port :host host)))
+     
+     (defun get-elnode-local-handlers ()
+       elnode-local-handlers)
+     
+     ;; initialize handler list   
+     (setq elnode-local-handlers '())
+   #+end_src
+
+** Services
+   Here is definition of the service initialization.
+
+   #+begin_src emacs-lisp
+     (defun elnode-init-services()
+       "Starts all defined elnode tcp services. These services are
+          defined in configuration file, but can be added/modified any
+          time."
+       (interactive)
+       (message "Starting elnode services...")
+       (mapc 
+        (lambda (request-handler)
+          (elnode-start request-handler (get request-handler :port) (get request-handler :host)))
+        (get-elnode-local-handlers))
+        (message "elnode: Starting done."))
+          
+     (defun elnode-stop-services()
+       "Stopping all services defined in elnode-local-handlers list"
+       (interactive)
+       (message "Stopping elnode services...")
+       (mapc 
+        (lambda (request-handler)
+          (elnode-stop (get request-handler :port)))
+        (get-elnode-local-handlers))
+       (message "elnode: Stopping done."))     
+   #+end_src
+
+*** Simple Example service
+    This is the simplest example possible, hello world.
+
+    #+begin_src emacs-lisp
+      (defun nicferrier-handler (httpcon)
+        "Demonstration function"
+        (elnode-http-start httpcon "200" '("Content-type" . "text/html"))
+        (elnode-http-return httpcon "<html><b>HELLO!</b></html>"))
+      (elnode-add-service-to-init 'nicferrier-handler 8010 "localhost")
+    #+end_src
+*** Complex Example service
+    This is a example service that can be provided by this little editor,
+
+    #+BEGIN_SRC emacs-lisp
+      (defun orgexpose (httpcon)
+        (save-excursion
+          (org-export-as-xoxo (get-buffer "school.org"))
+          (elnode-http-start httpcon "200" '("Content-type" . "text/html"))
+          (elnode-http-return 
+           httpcon
+           (format "<html>%s</html>" 
+                   (with-current-buffer (get-buffer "school.html")
+                     (buffer-substring-no-properties (point-min) (point-max)))))))
+      (elnode-add-service-to-init 'orgexpose 8020 "localhost")
+      
+      (provide 'el-node-services)
+    #+END_SRC
+* Consoles/Shells						    :console:
+  :PROPERTIES:
+  :tangle: personal/consoles.el
+  :END:
+
+  First we need to define some features, such as colors and
+  completion, which we want to our shells.
+
+  #+BEGIN_SRC emacs-lisp
+    ;;; consoles.el --- Several different console configuration
+    (setq
+     explicit-bash-args (quote ("--noediting" "-i" "-l")))
+    (require 'shell-completion)
+  #+END_SRC
+
+** SQL 								   :database:   
+   Defines customization of the SQL mode. This is very poverfull mode
+   for integrating SQL database actions to emacs.
+
+*** Keybinding							       :keys:
+    :PROPERTIES:
+    :ID:       eaa38421-2054-49df-8267-9aefb19e1d5e
+    :END:
+
+    #+BEGIN_SRC emacs-lisp
+      (global-set-key (kbd "<f9>") 'sql-mysql)
+    #+END_SRC
+*** Hooks
+    :PROPERTIES:
+    :ID:       a3cc375f-9e92-455a-8463-169c9229c61b
+    :END:
+
+    #+BEGIN_SRC emacs-lisp
+      (add-hook 'sql-interactive-mode 'toggle-truncate-lines)
+    #+END_SRC
+** Multiterm							      :shell:   
+   My new terminal manager. There is couple of copy/paste issues and
+   backspacing that renders this quite useless in my usage.
+
+   #+BEGIN_SRC emacs-lisp
+     (require 'multi-term)
+     
+     (global-set-key (kbd "<C-f8>") 'multi-term)
+     
+     (setq multi-term-program "/bin/bash"
+           multi-term-shell-arguments "-l"
+           multi-term-buffer-name "bash-shell")
+   #+END_SRC
+** eshell 							   :RESEARCH:
+   You should get familiarized with eshell
+** GIT 									:VCS:
+   
+   Here is defined git-emacs interface customization. Currently I'm
+   using magit.
+
+*** magit Configuration
+
+    #+BEGIN_SRC emacs-lisp
+      (autoload 'magit-status "magit" nil t)
+      (global-set-key (kbd "<f10>") 'magit-status)
+    #+END_SRC
+
+*** git-gutter
+    
+    Enable git gutter sublime fork mode so that I can visualize diff
+    against GIT head.
+    
+    #+begin_src emacs-lisp 
+      (when (require 'git-gutter nil 'noerror)
+        (global-git-gutter-mode t)
+        (global-set-key (kbd "C-x C-g") 'git-gutter:toggle)
+        (global-set-key (kbd "C-x v =") 'git-gutter:popup-hunk)
+      
+        (global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
+        (global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
+      
+        (global-set-key (kbd "C-x r") 'git-gutter:revert-hunk))
+    #+end_src
+
+** Bash-shell							   :obsolete:
+   This has been made obsolete by Multiterm package.
+*** Keybinding							       :keys:
+    :PROPERTIES:
+    :ID:       88a59015-946b-45d9-accb-233a3729d041
+    :END:
+
+    #+BEGIN_SRC emacs-lisp
+      (global-set-key [f8] 'alt-shell-dwim)
+      (global-set-key (kbd "M-r") 'shell-resync-dirs)
+    #+END_SRC
+*** Other
+    :PROPERTIES:
+    :ID:       a01ee854-8483-4e55-a7e6-10ffac41e2cc
+    :END:
+    #+BEGIN_SRC emacs-lisp
+      (defun alt-shell-dwim (arg)
+        "Run an inferior shell like `shell'. If an inferior shell as its I/O
+      through the current buffer, then pop the next buffer in `buffer-list'
+      whose name is generated from the string \"*shell*\". When called with
+      an argument, start a new inferior shell whose I/O will go to a buffer
+      named after the string \"*shell*\" using `generate-new-buffer-name'."
+        (interactive "P")
+        (let* ((shell-buffer-list
+               (let (blist)
+                  (dolist (buff (buffer-list) blist)
+                    (when (string-match "^\\*shell\\*" (buffer-name buff))
+                     (setq blist (cons buff blist))))))
+               (name (if arg
+                        (generate-new-buffer-name "*shell*")
+                      (car shell-buffer-list))))
+          (shell name)))
+      
+      (provide 'consoles)      
+     #+END_SRC
+* Emacs customization
+  :PROPERTIES:
+  :ID:       3696de86-9690-498c-b95c-21ef826a2911
+  :END:
+ 
+  Here we define and load the file where customization is kept.
+
+  #+begin_src emacs-lisp
+    (require 'appearance)
+    ;; in separate variable so that emacs can find sexp where to add things.
+    (setq custom-file "~/.emacs-custom.el") 
+    (load custom-file 'noerror)
+  #+end_src
+
+* Loading of different aspects
+
+  Here I then load these personalization modules to my emacs at
+  startup. I intentionally left some modules unloaded, because they
+  are so rarely used.
+
+  #+begin_src emacs-lisp
+    (require 'appearance)
+    (require 'navigation)
+    (require 'editing)
+    (require 'buffers)
+    (require 'erc-customs)
+    (require 'browsers)
+    
+    (require 'org-personal)
+    ;; org-crypt omoved here for issues with modularization of the lib. 
+    (require 'org-crypt)
+    
+    (require 'consoles)
+    (require 'programming)
+  #+end_src
+
+* License
+
+  Used external libraries are licensed as they are described in their
+  source files. This file and its generated derivatives are licensed
+  by following license:
+
+  "This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3, or (at your option)
+  any later version.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; see the file COPYING.  If not, write to the
+  Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+  Boston, MA 02110-1301, USA."
+
+  If you notice some license violations in this repository, please
+  contact original author of this repository.
