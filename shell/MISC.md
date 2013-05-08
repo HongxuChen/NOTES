@@ -115,3 +115,29 @@ python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, i
 ```
 !!; while [ $? -ne 0 ]; do !!; done
 ```
+
+## more info about cpu
+``` bash
+grep 'model name' /proc/cpuinfo | wc -l  #cpu cores
+```
+
+## arp scan
+```
+arp-scan -I eth0 -l | grep 10.112.18.155
+```
+
+## combined several commands
+```
+$ lld ; echo "ok" ; lok
+-bash: lld: command not found
+ok
+-bash: lok: command not found
+
+$ echo "ok" && lld && echo "ok"
+ok
+-bash: lld: command not found
+
+$ lld || echo "ok" || lok
+bash: command not found: lld
+ok
+```

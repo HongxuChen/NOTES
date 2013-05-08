@@ -16,3 +16,190 @@
 #+END_SRC
 
 
+
+* Dynamic and Lexical Binding
+** DYNAMIC: all variable names and their value live in ONE global table
+** LEXICAL: Every binding scope(function, let syntax,...) creates a new table of variable names and values, organised in ~environment~
+#+BEGIN_SRC elisp
+;; let is just a syntax sugar, below are equivalent
+(let ((a 1) (b 3)) (+ a b))
+((lambda (a b) (+ a b)) 1 3)
+#+END_SRC
+
+** Examples that show the diffs:
+*** lexical binding would lookup in bindings in ~lxical environment~ (bindings that enclose the name in the source code), the inner most is used if there are multiple. ~dynamically bound~ lookup up in bindings in all bindings which have been created since program began and not be destroyed, choose the most recently if multiple(in multi-threaded lisp this is a huge problem).
+#+BEGIN_SRC elisp
+;; elisp would print 2 while common-lisp by default prints 1
+(let ((a 1))  ;; binding 1
+  (let ((f (lambda () (print a))))
+    (let ((a 2))  ;; binding 2
+      (funcall f))))
+#+END_SRC
+#+BEGIN_SRC elisp
+;; neither of the 2 below work
+(funcall (let ((to_add 3)) (lambda (arg) (+ to_add arg))) 5) ;; to_add void variable
+(funcall (let ((to_add 3)) `(lambda (arg) (+ to_add arg))) 5) ;; the same above
+;; shoul use
+(funcall (lexical-let ((to_add 3)) (lambda (arg) (+ to_add arg))) 5) ;; 8
+#+END_SRC
+
+
+
+** Advantages of dynamic binding
+*** Great for modifying behaviour of subsystems.
+#+BEGIN_SRC elisp
+;; FIXME the parens are not matched
+(let ((b (generate-new-buffer-name "* my-output")))
+     (let ((standard-output b)) ((lambda () (print "hello"))))
+     (get-buffer-create b)
+     ;; do stuff with the output of foo
+     (kill-buffer b))
+#+END_SRC
+** Advantages of lexical binding:
+*** eliminate the problem of which variables lambda expressions use
+*** easier for compiler to optimize 
+** Languages:
+*** EmacsLisp has dynamic binding ONLY, Emacs24 lexical binding might be turned on for a ~file~ or ~buffer~.
+*** CommonLisp has both dynamic binding(~defvar~, ~declare~) and lexical binding(default).
+*** scheme support both although dynamic binding is refered to as "fluid variables" or "parameters".
+** Lexical binding branch of Emacs
+#+BEGIN_SRC elisp
+;;; -*-  lexical-binding: t -*-
+#+END_SRC
+
+** Simulating lexical binding in Emacs
+*** ~cl~ package might be used
+#+BEGIN_SRC elisp
+(eval-when-compile (require 'cl))
+(lexical-let ((foo 1)) ;; foo now is lexical-binded
+  (defun foo-test () foo)
+  (defun foo-inc ()
+    (incf foo)))
+(foo-test) ;; 1
+(foo-test) ;; 1
+(foo-inc)  ;; 2
+(foo-test) ;; 2
+#+END_SRC
+
+
+*** the mechanism:
+#+BEGIN_SRC elisp
+(with-output-to-temp-buffer (pp (symbol-function 'foo-test)));; see the output
+#+END_SRC
+*** Use a macro to facilitate writing higher-order functions using lexical closures.
+**** write lexical-let part of higher-order functions are verbose
+#+BEGIN_SRC elisp
+(defun compose (f g)
+  (lexical-let ((f f) (g g))
+    (lambda (x)
+      (funcall f (funcall g x)))))
+#+END_SRC
+**** write with macro
+#+BEGIN_SRC elisp
+;; elisp doesn't have a `filter' function
+(defun my-filter (condp lst)
+    (delq nil
+          (mapcar (lambda (x) (and (funcall condp x) x)) lst)))
+
+;; could also be called lexical-defun
+(defmacro lexdef (name args &rest body)
+  `(defun, name, args
+     (lexical-let, (mapcar (lambda (arg) (list arg arg))
+                           (my-filter (lambda (a) (not (equal a '&rest)))
+                                   args))
+                   ,@body)))
+
+(lexdef compose (f g)
+        (lambda (x)
+          (funcall f (funcall g x))))
+
+(lexdef curry (f &rest args)
+    (lambda (&rest more-args)
+      (apply f (append args more-args))))
+(set 'add1 (curry '+ 1))
+(assert (= (funcall add1 2) 3))
+
+#+END_SRC
+
+
+
+
+
+* lexical binding
+#+BEGIN_SRC elisp
+(setq lexical-binding t)
+(setq test (let ((foo "bar"))
+             (lambda () (message foo))))
+;; (closure ((foo . "bar") t) nil (message foo))
+
+(funcall test) ;; "bar"
+(let ((foo "something-else"))
+  (funcall test))  ;; would print "something-else" with dynamic-binding
+#+END_SRC
+** COMMENT ~defun~ doesn't work properly in lexicallly bound contexts.
+#+BEGIN_SRC elisp
+(let ((counter 0))
+  (defun counting ()
+    (setq counter (1+ counter)))
+  (let ((counter 5))
+    (print (counting)))) ;; 6
+#+END_SRC
+ Here ~counter~ would be bounded to global value of that name if there is one
+ and not the lexical variable defined in ~let~. byte-compile would emit a
+ warning. But ~defun**~ could be used instead.
+ #+BEGIN_SRC elisp
+ ;; TODO figure out why
+  (defmacro defun** (name arglist &rest body)
+    "Define NAME as a function in a lexically bound context.
+  
+  Like normal `defun', except that it works correctly in lexically
+  bound contexts.
+  
+  \(fn NAME ARGLIST [DOCSTRING] BODY...)"
+    (when (fboundp `,name)
+      (message "Redefining function/macro: %s" `,name))
+    `(eval-and-compile
+       (fset (quote ,name) (lambda (,@arglist) ,@body))))
+  
+  (setq count-res (let ((counter 0))
+       (defun** counting ()
+         (setq counter (1+ counter))))) 
+    (let ((tt 5))
+      (print (count-res))) ;; error
+ (counting)
+ 
+ #+END_SRC
+
+
+
+
+* Backquote Syntax
+** ~quote~ quotes _everything_ with no option of unquoting bits; can use ~list~ instead. For instance, ~(list 'foo default-directory 'bar)~ would get
+src_emacs-lisp{(list 'foo default-directory 'bar)}.
+** ~`~ quotes all of a form, except for those bits which is hoped to be evaluated(with *,* ), so the above is equivalent to ~`(foo ,default-directory bar)~.
+** backquote is actually a reader-macro:
+#+BEGIN_SRC elisp
+(macroexpand '`("%b - " ,(getenv "USERNAME") "@" ,(getenv "USERDOMAIN")))
+        => (list "%b - " (getenv "USERNAME") "@" (getenv "USERDOMAIN"))
+#+END_SRC
+** useful when writing macros.
+#+BEGIN_SRC elisp
+(defmacro my-macro-1 (arg1 arg2)
+  (list 'setq arg1 (list 'cons arg2 arg1)))
+
+(defmacro my-macro-2 (arg1 arg2)
+  `(setq ,arg1 `,(cons ,arg2 ,arg1)))
+
+(macroexpand '(my-macro-1 list 'foo))
+#+END_SRC
+** /,@/ is a "splicing" operator, particularly useful when writing macros with an ~&rest~ specifier.
+#+BEGIN_SRC elisp
+(let ((list '(a b c d)))
+  `(elt1 ,list elt2))  ;; (elt1 (a b c d) elt2)
+
+(let ((list '(a b c d)))
+  `(elt1 ,@list elt2))  ;; (elt1 a b c d elt2)
+#+END_SRC
+
+
+

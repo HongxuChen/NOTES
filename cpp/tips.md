@@ -1,2 +1,0 @@
-- use expression without side effect in `assert` macro
-- construct member variable in order they defined(`-Wreorder`)
