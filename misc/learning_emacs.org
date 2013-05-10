@@ -48,11 +48,11 @@
 ** Advantages of dynamic binding
 *** Great for modifying behaviour of subsystems.
 #+BEGIN_SRC elisp
-;; FIXME the parens are not matched
-(let ((b (generate-new-buffer-name "* my-output")))
-     (let ((standard-output b)) ((lambda () (print "hello"))))
-     (get-buffer-create b)
+(let ((b (get-buffer-create "*my-output*")))
+     (let ((standard-output b)) (print "foo"))
+     (set-buffer b)
      ;; do stuff with the output of foo
+     (insert "bar")
      (kill-buffer b))
 #+END_SRC
 ** Advantages of lexical binding:
@@ -200,6 +200,5 @@ src_emacs-lisp{(list 'foo default-directory 'bar)}.
 (let ((list '(a b c d)))
   `(elt1 ,@list elt2))  ;; (elt1 a b c d elt2)
 #+END_SRC
-
 
 
