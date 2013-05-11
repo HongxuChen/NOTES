@@ -141,3 +141,14 @@ $ lld || echo "ok" || lok
 bash: command not found: lld
 ok
 ```
+
+## html to pdf
+```
+wkhtmltopdf my_resume.html my_resume.pdf
+```
+
+### print latest modified contents
+```
+# fails when the last changed is a directory
+watch 'ls -tr1 | tail -n1 | xargs tail'
+```
