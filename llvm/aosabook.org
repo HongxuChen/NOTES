@@ -1,0 +1,162 @@
+#+BEGIN_QUOTE 
+  The Architecture of Open Source Applications -- LLVM
+#+END_QUOTE
+
+LLVM is was designed as a set of reusable libraries with well-defined interfaces.
+
+* A quick introduction to classical compiler design
+source  code -> |frontend -> optimizer -> backend| -> machine code
+optimizer: transformations: eliminating redundant computations(usually independent of language and target)
+** implications of this design
+*** multiple source languages or target architectures
+*** the compiler serves a broader set of programmers
+*** make it easier for front-end person/backend person
+** pitfalls:
+*** implementation of Perl, Python, Ruby and Java share no code
+*** some language implementation is very specific to the one source language they support
+
+* Existing Language Implementations
+** JIT/.NET virtual machines provide JIT compiler and bytecode format. 
+*** not flexible: force JIT, GC, particular object model.
+** translate input source into C code and send it through existing C compilers
+*** prevent efficient implementation of exception handling.
+** GCC
+*** pieces of GCC cannot be reused as libraries: 
+**** rampant use of global variables
+**** weekly enforced invariants
+****  poorly-designed data structures
+**** sprawling code base
+**** use of macros
+**** layering problems and leak abstractions
+
+* LLVM's code representation: LLVM IR
+#+BEGIN_SRC llvm
+define i32 @add1(i32 %a, i32 %b) {
+entry:
+  %tmp1 = add i32 %a, %b
+  ret i32 %tmp1
+}
+
+define i32 @add2(i32 %a, i32 %b) {
+entry:
+  %tmp1 = icmp eq i32 %a, 0
+  br i1 %tmp1, label %done, label %recurse
+
+recurse:
+  %tmp2 = sub i32 %a, 1
+  %tmp3 = add i32 %b, 1
+  %tmp4 = call i32 @add2(i32 %tmp2, i32 %tmp3)
+  ret i32 %tmp4
+
+done:
+  ret i32 %b
+}
+
+#+END_SRC
+#+BEGIN_SRC c
+unsigned add1(unsigned a, unsigned b) {
+  return a+b;
+}
+// Perhaps not the most efficient way to add two numbers.
+unsigned add2(unsigned a, unsigned b) {
+  if (a == 0) return b;
+  return add2(a-1, b+1);
+}
+#+END_SRC
+** LLVM IR is a low-level RISC like virtual instruction set: linear sequences of simple instructions, three address form
+** LLVM IR is strongly typed with a simple type system, use an infinite set of temporaries named with ~%~
+
+** Writing an LLVM IR optimization
+#+BEGIN_SRC llvm
+⋮    ⋮    ⋮
+%example1 = sub i32 %a, %a
+⋮    ⋮    ⋮
+%example2 = sub i32 %b, 0
+⋮    ⋮    ⋮
+%tmp = mul i32 %c, 2
+%example3 = sub i32 %tmp, %c
+⋮    ⋮    ⋮
+#+END_SRC
+#+BEGIN_SRC c++
+// X - 0 -> X
+if (match(Op1, m_Zero()))
+  return Op0;
+// X - X -> 0
+if (Op0 == Op1)
+  return Constant::getNullValue(Op0->getType());
+// (X*2) - X -> X
+if (match(Op0, m_Mul(m_Specific(Op1), m_ConstantInt<2>())))
+  return Op1;
+…
+return 0;  // Nothing matched, return null to indicate no transformation.
+#+END_SRC
+
+* LLVM's implementation of three-phrase design
+** LLVM IR is a complete code representation
+** LLVM is a collection of libraries
+*** LLVM is a complete code representation
+*** LLVM is a collection of libraries
+**** Each LLVM pass is written as a C++ pass, derived from ~Pass~ and defined in an anonymous namespace.
+**** passes are compiled into ~.o~ files and archived into ~.a~ files in Unix systems.
+**** passes are expected to stand on their own or explicitly declare dependencies among other analysis passes.
+**** LLVM libraries have many capabilities, but they let the designer of the client of the libraries to decide how to use the pieces.
+
+* Design of the retargetable LLVM code generator
+responsible for transforming LLVM IR into target specific machine code; produce best possible machine code for any given target.
+LLVM code generator splits the code generation into individual passes: ~instruction selection~, ~register allocation~, ~scheduling~, ~code layout optimization~, ~assembly emission~; it provides builtin passes that are run by default.
+** LLVM target description files
+*** Each shared component needs to be reason about target ~specific~ properties in a ~generic~ way.
+
+#+BEGIN_SRC tablegen
+def GR32 : RegisterClass<[i32], 32,
+  [EAX, ECX, EDX, ESI, EDI, EBX, EBP, ESP,
+   R8D, R9D, R10D, R11D, R14D, R15D, R12D, R13D]> { … }
+#+END_SRC
+- 32-bit integer values
+- prefer to be 32-bit aligned
+- 16 registers(in other ~.td~ files)
+- some more information to specify preferred allocation order
+  
+*** ~complement a 32-bit register~ instruction is defined as:
+#+BEGIN_SRC tablegen
+let Constraints = "$src = $dst" in
+def NOT32r : I<0xF7, MRM2r,
+               (outs GR32:$dst), (ins GR32:$src),
+               "not{l}\t$dst",
+               [(set GR32:$dst, (not GR32:$src))]>;
+#+END_SRC
+- NOT32r is an instruction(using ~I~ tblgen class)
+- encoding information(~0xF7~, ~MRM2r~)
+- defines an "output" 32-bit register ~$dst~
+- has a 32-bit register "input" named ~$src~
+- ~GR32~ register class defined above defines which registers are valid for the operand
+- specify the assembly syntax for the instruction(~{}~ handles both AT&T and Intel syntax)
+- specify the effect of the instruction and provides pattern that it should match on the last line.
+- ~let~ tells the register allocator the input and output register must be allocated to the same physical register.
+  
+*** common LLVM code can do a lot with information derived from the description by using ~tblgen~ tool.
+
+* Interesting capabilities provided by a modular design
+** choosing when and where each phase runs
+*** link-time optimization(LTO) ~flto~ / ~-O4~ for clang
+*** install-time
+** Unit testing the optimizer
+*** LLVM test suite highly focused regression tests that can load LLVM IR from disk, run it through exactly one optimization pass and verify the expected behavior.
+#+BEGIN_SRC llvm
+; RUN: opt < %s -constprop -S | FileCheck %s
+define i32 @test() {
+  %A = add i32 4, 5
+  ret i32 %A
+  ; CHECK: @test()
+  ; CHECK: ret i32 9
+}
+#+END_SRC
+- ~RUN~ line specifies the /command/ to execute(opt and FileCheck here).
+***** ~opt~ is simple wrapper around the LLVM pass manager
+***** ~FileCheck~ verifies that its standard input matches a series of ~CHECK~ directives(here is verifying that ~constprop~ pass is folding the add of 4 and 5 into 9).
+** Automatic test case reduction with bugpoint
+*** ~bugpoint~ uses IR serialization and modular design of LLVM to automatically reduce test cases
+*** in more complex case of a miscompilation, we can specify the input, code generator information the CLI to pass to the executable, and a reference output.
+**** bugpoint would determine if the problem is due to an optimizer or a code generator and will repeatedly partition the test case into 2 pieces: one that is sent into ~known good~ and the other ~known buggy~.
+
+* Retrospective and future directions

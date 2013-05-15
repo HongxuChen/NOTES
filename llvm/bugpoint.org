@@ -1,0 +1,70 @@
+#+TITLE: LLVM Bugpoint Tool: Design and Usage
+#+TOC:headlines 1
+
+* Description
+** narrow down the source of problems in LLVM *tools* and *passes*
+** debug 3 types of failures: optimizer crashes, miscompilations by optimizers, bad native code generation(staitc AND JIT compilers)
+
+* Design Philosophy
+** without requiring any hooks into LLVM infrastructure
+** work with any passes and code generators, does not need to know how they work
+** might appear to do stupid things or miss obvious simplifications
+** may take a long period of unattended time to reduce a test case
+
+* Automatic Debugger Selection
+** read ~.bc~ / ~.ll~ file specified on CLI and linke them together into a single module(test program). 
+** LLVM passes are specified on the command line: if any of the passes crash, or produce malformed output(cause verifier to abort), bugpoint starts the ~crash debugger~.
+** Else if ~-output~ option is not specified, bugpoint runs the test program with the "safe" backend(assumed to generate good code) to generate a reference output, then executes it with the selected code generator.
+*** Selected code generator crashes \rightarrow start ~crash debugger~
+*** resulting output differs from the reference output \rightarrow a code generator failure \rightarrow start ~code generator debugger~
+** If the output the selected code generator matches the reference output, bugpoint runs the test program after all of LLVM passes have been applied to it.
+*** output differs from the reference output \rightarrow start ~miscompilation debugger~
+*** no problem bugpoint can debug
+  
+* Crash Debugger
+optimizer / code generator crashes
+** figure out which combination of optimizer passes triggers the bug
+** try reduce the test program size
+*** It is expected to reduce the program into a single function when debugging intraprocedural optimizations.
+*** attempt to delete edges in CFG to reduce functions
+*** delete individual LLVM instructions whose absence does not eliminate the failure.
+** generate a bitcode file and instructions to reproduce the failure
+
+* Code Generator Debugger
+miscompiled by selected code generator
+** partition test program into 2 parts:
+*** "safe" backend(shared object)
+*** piece which runs with JIT/llc(to be compiled with code generator)
+** reduce the scope
+
+* Miscompilation Debugger
+assume the code generator works properly.
+** split test program into 2 pieces
+** run optimizations specified on 1 piece
+** link 2 peice back together
+** execute the result.
+
+* Advice for Using Bugpoint
+** bugpoint only works with programs having deterministic output in ~code generator~ and ~miscompilation debuggers~
+** In ~code generator~ and ~miscompilation debuggers~, debugging will go faster if manually modifying program or inputs to reduce runtime
+** useful when working on a new optimization. Have bugpoint dynamically locad optimization with ~-load~ option.
+** Use full to relocate output into file.
+#+BEGIN_SRC sh
+# the use of `&'
+$ bugpoint ... |& tee bugpoint.log
+#+END_SRC
+** cannot debug problems with LLVM linker.
+*** if bugpoint crashes before seeing ~all input ok~, try ~llvm-link -v~ on the same input files; if it also crashes, a linker bug.
+
+* What To Do When Bugpoint Isn't Enough
+Sometimes, the size of the test program is still big, for instance ~InstCombine~ and ~TargetLowering~ have visitor structured code with lots of pointial transformations.
+
+Take ~instcombine~ for example to show what to deal with.
+** Turn on ~-debug-only=instcombine~ to see which transformations are firing by selecting out lines with *IC* in them.
+** If the number of transformations are small enough, debug directly
+** Otherwise, source modification approach.
+*** In this case, modify the source code of instcombine to disable those transformations, for instance make ~visit*~ methods of InstCombiner dummy.
+*** change the caller of InstCombiner::DoOneIteration, InstCombiner::runOnFunction to limit the number of iterations.
+*** use ~-stats~ to see what parts of instcombine are firing.
+*** If still many transformaitons, insert code to limit whether or not to execute the body of the code in visit function.
+
