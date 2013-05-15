@@ -4,25 +4,17 @@
 
 * A sample project
 ** module.h
-#+BEGIN_SRC c
-#+INCLUDE: "beginners/module.h"
-#+END_SRC
+#+INCLUDE: "beginners/module.h" src c
 
 ** module.c
-#+BEGIN_SRC c
-#+INCLUDE: "beginners/module.c"
-#+END_SRC
+#+INCLUDE: "beginners/module.c" src c
 
 ** main.c
-#+BEGIN_SRC c
-#+INCLUDE: "beginners/main.c"
-#+END_SRC
+#+INCLUDE: "beginners/main.c" src c
 
 * Writing a Makefile from scratch
 ** Makefile1
-#+BEGIN_SRC makefile
-#+INCLUDE: "beginners/Makefile1"
-#+END_SRC
+#+INCLUDE: "beginners/Makefile1" src makefile
 
 * Makefile processing
 ** look file ~Makefile~/~makefile~ or specified by ~-f~
@@ -70,9 +62,7 @@ subtargets:
         cd subdirectory && $(MAKE)
 #+END_SRC
 ** Improved makefile:
-#+BEGIN_SRC makefile
-#+INCLUDE: "beginners/Makefile2"
-#+END_SRC
+#+INCLUDE: "beginners/Makefile2" src makefile
 
 ** Make in non-complation contexts
 *** example scenario:

@@ -36,3 +36,4 @@ Notes:
     refers to the blank spaces before a list item or stars
     and space in a headline
 
+* yank region when in read-only buffer: mark region and then ~kill-ring-save~ 
