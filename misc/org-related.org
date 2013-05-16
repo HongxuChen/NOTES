@@ -1,11 +1,38 @@
 * text extraction
-- [[https://github.com/jiminoc/goose/wiki][Goose]](Scala)
-- [[https://github.com/peterc/pismo][pismo]](Ruby)
-- [[https://code.google.com/p/boilerpipe/][boilerpipe]] (Java)
-- [[https://code.google.com/p/justext/][justext]] (Python)
-- [[http://tomazkovacic.com/blog/56/list-of-resources-article-text-extraction-from-html-documents/][Article text extraction from HTML documents]]
-- [[https://news.ycombinator.com/item?id%3D2526127][HN discussion]]
-- [[https://code.google.com/p/arc90labs-readability/downloads/detail?name%3Dreadability.js&can%3D2&q%3D][readability]]
-- [[http://stackoverflow.com/questions/4283418/instapaper-like-algorithm][Instapaper-like]]
-- [[http://jericho.htmlparser.net/docs/javadoc/net/htmlparser/jericho/Renderer.html][Renderer]]
-- [[http://readwrite.com/2011/03/19/text-extraction][Overview of Text Extraction Algorithms]] 
+** [[https://github.com/jiminoc/goose/wiki][Goose]](Scala)
+** [[https://github.com/peterc/pismo][pismo]](Ruby)
+** [[https://code.google.com/p/boilerpipe/][boilerpipe]] (Java)
+** [[https://code.google.com/p/justext/][justext]] (Python)
+** [[http://tomazkovacic.com/blog/56/list-of-resources-article-text-extraction-from-html-documents/][Article text extraction from HTML documents]]
+** [[https://news.ycombinator.com/item?id%3D2526127][HN discussion]]
+** [[https://code.google.com/p/arc90labs-readability/downloads/detail?name%3Dreadability.js&can%3D2&q%3D][readability]]
+** [[http://stackoverflow.com/questions/4283418/instapaper-like-algorithm][Instapaper-like]]
+** [[http://jericho.htmlparser.net/docs/javadoc/net/htmlparser/jericho/Renderer.html][Renderer]]
+** [[http://readwrite.com/2011/03/19/text-extraction][Overview of Text Extraction Algorithms]] 
+
+* headline keymaps
+
+|-------------+------------------+--------+------------------------------|
+| command     | context          | pos    | action                       |
+|-------------+------------------+--------+------------------------------|
+| c-ret       | any              | any    | create headline above ENTRY  |
+| m-ret       | headline or item | beg    | create new above header/item |
+| m-ret       | headline or item | middle | split                        |
+| m-ret       | headline or item | end    | create new below header/item |
+| m-ret       | line             | beg    | create headline above LINE   |
+| m-ret twice | line             | beg    | create item above line       |
+| m-ret       | line             | middle | turn line into a headline    |
+| m-ret twice | line             | middle | turn line into an item       |
+| m-ret       | line             | end    | create headline below line   |
+| m-ret twice | line             | end    | create item below line       |
+|-------------+------------------+--------+------------------------------|
+
+Notes:
+
+  - C-RET (in all contexts) creates new headline ABOVE (not
+    below) the current entry
+
+  - "beg" does not only refer to beginning of line.  it also
+    refers to the blank spaces before a list item or stars
+    and space in a headline
+

@@ -1,0 +1,440 @@
+#+OPTIONS: ^:nil TOC:2
+
+
+* Abstract
+* Introduction
+** 3 code representation forms of llvm IR:
+***  in-memory compiler IR
+***  on-disk bitcode representation _.bc_ file,for fast loading by JIT compiler
+***  human readable _.ll_
+llvm-dis and llvm-as can be use to transfer from/to bitcode files
+
+** Well-Formedness
+- Syntactically-ok \neq well-formed. 
+~%x = add i32 1, %x~ is not well-form since the definition of ~%x~ does not dominate all of its uses.
+- LLVM provides a verification pass to check well-formedness(see ~llvm/Analysis/Verifier.h~ and ~lib/VMCore/Verifier.cpp~ and its usage in ~examples/Kaleidoscope~.
+
+* Identifiers
+** 2 identifier types:
+*** Global(~GlobalValue~):begin with _@_
+*** Local(register names, types):begin with _%_
+** 3 formats:
+*** Named values: ~[%@][a-zA-Z$._][a-zA-Z$._0-9]*~
+Identifier which require other character in their names can be surrounded with quotes; special characters may be escaped using "\xx"
+*** Unnamed values(temporary): an unsigned numeric value,~[%@][0-9]+~
+*** Constants
+
+* High Level Structure
+** Module Structure
+*** Module \rightarrow translation unit
+**** functions
+**** global variables
+**** symbol table entries
+*** LLVM linker links modules
+**** merge functions and global variables
+**** resolve forward declarations
+**** merge symbol table entries
+
+
+#+BEGIN_SRC llvm
+; Declare the string constant as a global constant.
+@.str = private unnamed_addr constant [13 x i8] c"hello world\0A\00"
+; External declaration of the puts function
+declare i32 @puts(i8* nocapture) nounwind
+; Definition of main function
+define i32 @main() {   ; i32()*
+  ; Convert [13 x i8]* to i8  *...
+  %cast210 = getelementptr [13 x i8]* @.str, i64 0, i64 0
+  ; Call puts function to write out the string to stdout.
+  call i32 @puts(i8* %cast210)
+  ret i32 0
+}
+; Named metadata
+!1 = metadata !{i32 42}
+!foo = !{!1, null}
+#+END_SRC
+
+** Linkage Types
+~GlobalValue~ has one of the following types of linkage
+*** private
+**** only directly accessible by objects in current module
+**** linking code into a module with private global value may cause privateto be renamed to avoid collisions
+**** all references can be updated
+**** doesn't show up in any symbol table in the object file
+*** linker_private
+**** similar to ~private~
+**** symbol is passed through the assembler and evaluated by the linker
+**** remove by the linker from final linked image(executable/dynamic shared library)
+*** linker_private_weak
+**** similar to ~linker_private~
+**** symbol is weak
+**** TODO coalescing by the linker
+**** removed by the linker from the final linked image
+*** internal
+**** similar to ~private~
+**** the value shows a local symbol(*STB_LOCAL* in the case of /ELF/) in object file
+**** corresponds to *static* keyword in C.
+*** available_externally
+**** never emitted into the object file corresponding to module
+**** allow inlining and other optimizations to take place given knowledge of the definition of the global(somewhere outside the  module)
+**** allow to be discarded at will, otherwise the same as ~linkonce_odr~
+**** only allowed on definitions, not declarations
+*** linkonce
+**** merged with other globals of the same name when linking
+**** used to implement some forms of inline functions, templates or other code which must be generated in each translation unit that uses it but the body may be overridden with a more definitive definition
+**** unreferenced ~linkonce~ globals are allowd to be discarded
+**** does not allow optimizer to inline the body of this function into callers
+***** It doesn't know if this definition of the function is the definitive definition within program or whether it will be overridden by a stronger definition
+***** use ~linkonce_ord~ linkage instead to enable inlining and other optimizations
+*** weak
+**** same merging semantics as ~linkonce~ except that unreferenced globals cannot be discarded
+**** TODO corresponding to *weak* declared in C
+*** common
+**** most similar to ~weak~, but used for tentative definitions in C(for instance, ~int X~ at global scope).
+**** merged in the same way as ~weak~, and may not be deleted if unreferenced.
+**** may not have an explicit section, must have a zero initializer, may not marked *constant*
+**** Functions and aliases may not have ~common~ linkage
+*** appending
+**** may only be applied to global variables of pointer to array type
+**** two global arrays with ~appending~ linkage are appended when linked
+*** exern_weak
+**** the symbol is weak until linked; otherwise becomes null instead of being an undefined reference.
+**** follow ELF object file model
+*** linkonce_odr, weak_odr
+**** ODR -> one definition rule
+**** additionally ensure that the global will only be merged with equivalent globals
+*** linkonce_odr_auto_hide
+**** similar to ~linkonce_odr~, but nothing in translation until takes the address of this definition. For instance, functions has an inline definition, but the compiler decided not to inline
+**** have only ~default~ visiblity
+**** removed by linker from final linked image
+*** external
+**** default linkage
+**** participates in linkage and can be used to resolve external symbol references
+*** Windows-only linkage types: ~dllimport~ , ~dllexport~
+
+** Calling Conventions
+LLVM _functions_, _calls_ and _invokes_ can all have an optional calling convention specified for the call. The calling convention of any pair of dynamic caller/callee must match
+*** ccc - the C calling convention
+**** default calling convertion, matches C calling conventions
+**** supports varargs function calls and tolerates some mismatch in the declared prototype and implemented declaration of the function
+*** fastcc - the fast calling convention
+**** attempt to make calls as fast as possible(e.g. by passing things in registers)
+**** allow target to use whatever tricks it wants to produce fast code for the target, without conforming to an externally specified ABI
+**** tail calls can only be optimized when ~fastcc~, ~cc 10~ or ~cc 11~ is used.
+**** do not support varargs and requires exact match between prototype and definition
+*** codecc - the code calling convention
+**** attempt to make code in the caller as efficient as possible under the assumption that the call is not commonly executed
+**** often all registers so that call does not break any live ranges in the caller side
+**** do not support varargs and requires exact match between prototype and definition
+*** cc 10 - GHC convention
+**** for use of Glasgow Haskell Compiler(GHC)
+**** pass everything in registers, going to extremes to achieve this by disabling callee save registers
+**** should not be used lightly but only for specific situations such as an alternative to the /register pinning/ performance technique used in FP languages
+**** only X86 support this convention and has following limitations:
+***** X86-32 only supports up to 4 bit type parameters, no FT types support
+***** X86-64 only supports up to 10 bit type parameters, 6 FP parameters
+**** support tail call optimization but requires BOTH caller and callee are using it
+*** cc 11 - the HiPE calling convention
+**** for use of High-Performance Erlang(HiPE)
+**** use more registers for argument passing than cc and defines no callee-save registers
+**** support tail call optimizations but requires BOTH caller and callee are using it
+**** use /register pinning/ mechanism for keeping frequently accessed runtime componnets pinned to specific hardware registers
+**** only X86 support
+*** cc <n> - Numbered convention
+**** Any calling convention may be specified by number, allowing target-specific calling convention
+** Visibility Styles
+All global variables and functions have one of the 3 visibility styles:
+*** default
+**** targets using ELF
+***** declaration is visible to other moudules
+***** in shared libraries, declared entity may be overridden
+**** Darwin: declaration is visible to other modules
+**** correspond to ~external linkage~
+*** hidden
+**** two declarations of an object with hidden visibility refer to the same object if in same shared object
+**** symbol will not be placed into dynamic symbol table, and no other module(executable or shared library) can reference it directly
+*** protected
+**** On ELF
+***** will be placed in the dynamic symbol table
+***** reference within hte defining module will bind to local symbol(cannot be overridden by another module)
+** Named Types
+*** name aliases for certain types except ~void~
+#+BEGIN_SRC llvm
+%mytype = type { %mytype*, i32}
+#+END_SRC
+*** can specify multiple names for the same type, but LLVM IR printer would pick ONE name
+** Global Variables
+define regions of memory allocated at COMPILATION time instead RUNTIME
+*** may be initialized, may have an explicit section to be placed in, may have exptional explicit alignment specified
+*** may be defined as ~thread_local~, meaning that each thread will have a separated copy of the variable(not all targets support ~thread_local~ variables)
+**** TODO a TLS model may be specified
+***** localdynamic: variables that are only used within current shard library
+***** initialexec: variables in modules that will not be loaded dynamically
+***** localexec: variables defined in the executable and only used within it
+*** may be defined as global ~constant~, indicating the content will NEVER be modified(for optimization)
+**** variables needing runtime initialization cannot be marked as constant
+**** *declarations* of global variables are allow to be marked constant even if the final definition of the global is not. Require language def to guarantee that optimizations based on the constantness are valid for the translation units that do not include the definition
+*** As SSA values, global variables always define a pointer to their content type, and are in all basic blocks in the program
+ALL memory objects in LLVM are accessed through POINTERS.
+*** can be marked with ~unnamed_addr~, indicating that the address is not significant(only the content); can be merged with other constatns when  they share the same initializer. A ~constant~ with significant address can be merged with ~unnamed_addr constant~, the result being a constant whose address is significant.
+*** may be declared to reside in a target-specific numbered address
+**** default address space is 0
+**** address space qualifier must PRECEDE other attributes
+*** explicit section speified for *GLOBALS* (variables, functions) is allowed; then LLVM will emit globals to the section.
+*** By default, global initializer are optimized by assuming that global variables defined within module are not modified from their values before the start of global initializer; the assumption would be suppressed by marking variable with ~externally_initialized~.
+*** an explicit alignment may be specified, which is a power of 2; 0 by default(set by target).
+#+BEGIN_SRC llvm
+;; numbered address 5, 
+@G = addrspace(5) constant float 1.0, section "foo", align
+@G = thread_local(initialexec) global i32 0, align 4
+#+END_SRC
+** Functions
+*** see ~include/llvm/Function.h~
+**** ~Argument(llvm/Argument.h)~,
+**** ~BasicBlock~, forming CFG.
+**** ~SymbolTable(llvm/ValueSymbolTable.h)~
+*** syntax
+**** definition
+#+BEGIN_SRC llvm
+define [linkage] [visibility]
+[cconv] [unnamed_addr][ret attrs]
+<ResultType> @<FunctionName> ([argument list])
+[fn Attrs] [section "name"] [align N]
+[gc] { ... }
+#+END_SRC
+**** declaration
+#+BEGIN_SRC llvm
+declare [linkage] [visibility]
+[cconv] [unnamed_addr] [ret attrs]
+<ResultType> @<FunctionName> ([argument list])
+[align N] [gc]
+#+END_SRC
+*** Basicblock 
+**** may optionally start with a label(giving the basic block a SYMBOL TABLE)
+**** contain a list of instructions and end with ~terminator~
+**** first basic block is special:
+***** immediately executed on entrance to function
+***** not allowed to have predecessor; cannot have PHI node
+** Aliases
+*** second name for function, global variable, another alias, bitcast of global value
+*** may have ~linkage type~ or ~visibility style~
+*** syntax
+#+BEGIN_SRC llvm
+@<Name> = alias [Linkage] [visibility] <AliaseeTy> @<Aliasee>
+#+END_SRC
+
+** Named Metadata
+*** ~llvm/Metadata.h~, ~Metadata.cpp~
+*** a collection of metadata
+*** dbg metadata can be seen [[http://llvm.org/docs/SourceLevelDebugging.html*debugging-information-format][here]]
+*** operands: metadata node(not metadata strings)
+*** syntax
+#+BEGIN_SRC llvm
+!0 = metadata !{metadata !"zero"}
+!1 = metadata !{metadata !"one"}  ;unnamed metadata nodes
+!name = !{!0, !1} ; A named metadata
+#+END_SRC
+
+** Parameter Attributes
+*** ~llvm/Attributes.h~, ~FunctionType~, ~llvm/DerivedTypes.h~
+*** OWNER: 
+**** function return type(*FunctionType.getReturnType()*)
+**** parameter of a function type(*FunctionType.getParamType(i)*)
+*** part of FUNCTION, not function type
+**** function with different parameter attributes CAN have the same function type
+#+BEGIN_SRC llvm
+declare i32 @printf(i8* noalias nocapture, ...)
+declare i32 @atoi(i8 zeroext)
+declare signext i8 @returns_signed_char()
+#+END_SRC
+*** zeroext
+**** parameter or return value should be zero-extended to the extent rquired by target's ABI(usally 32-bits, 8-bits for i1 on x86-64) by caller(parameter) or callee(return value)
+*** singext
+**** sign-extended
+*** inreg
+**** treated in a special TARGET-DEPENDENT fashion while emitting code for function call or return(usually put into a register).
+*** byval
+**** The pointer parameter should be passed by value to function, a hidden copy of pointee is made between caller and callee(so callee cannot modify value in caller)
+**** only used for LLVM pointer arguments, not valid for return values
+**** the copy belongs to caller, soj readonly functions should not write to ~byval~ parameters
+**** allow an alignment with align attribute; target-specific if not specified
+*** sret
+**** indicate the pointer parameter specifies the address of a structure that is the return value of function in source program.
+**** This pointer must be guaranteed by caller to be valid: loads and stores to the structure may be assumed by callee not to trap and to be properly aligned.
+**** only applied to the FIRST PARAMETER; not valid for return values
+*** noalias
+**** TODO indicate pointer values /based <pointeraliasing>/ on argument or return value don't alias pointer values which are not *based* on, ignoring certain irrelevant dependencies.[[http://llvm.org/docs/AliasAnalysis.html#MustMayNo][alias analysis]]
+**** similar to ~restrict~ keyword in C99 but slightly weaker(~restrict~ cannnot be used for return values)
+*** nocapture
+**** callee doesn't make copies of the pointer that outlive callee
+**** not valid for return values
+*** nest
+**** pointer parameter can be excised ~trampoline intrinsics~
+**** not valid for return values; can only be applied to ONE parameter
+*** returned
+**** always returns the value of the parameter as its return value
+**** allow tail call optimization and omission of register saves and restores, not checked or enforced
+**** parameter and function return type must be valid operands for ~bitcast instruction~
+**** not valid for return values and can only be applied to ONE parameter
+
+** Garbage Collector Names
+#+BEGIN_SRC llvm
+define void @f() gc "name" { ... }
+#+END_SRC
+** Attribute Groups
+*** groups of attributes referenced by objects within IR, important for keeping *.ll* readable, module-level
+*** object references attribute group's ID; attributes are merged if an object refers to >1 attribute groups
+#+BEGIN_SRC llvm
+; Target-independent attributes:
+attributes #0 = { alwaysinline alignstack=4 }
+; Target-dependent attributes:
+attributes #1 = { "no-sse" }
+; Function @f has attributes: alwaysinline, alignstack=4, and "no-sse".
+define void @f() #0 #1 { ... }
+#+END_SRC
+** Function Attributes
+*** part of FUNCTION, not of function type; functions with different function attributes can have the same function type
+#+BEGIN_SRC llvm
+define void @f() alwaysinline optsize { ... }  ;
+#+END_SRC
+*** alignstack(<n>)
+**** the backend should forcibly align the stack pointer when emitting prologue and epilogue.
+*** alwaysinline
+**** inliner should attempt to inline function into callers whenever possible ignore any active inlining size threshould for this caller.
+*** nonlazybind
+**** suppress lazy symbol binding for function
+**** make calls to function faster, at cost of extra program startup time if function is not called during program startup
+*** naked
+**** disable prologue or epilogue emission for function, SYSTEM-SPECIFIC
+*** nobuiltin
+**** callee function at a call site is not recognized as built-in functions and LLVM would retain the original call
+**** only valid at call site, not function declaration or definition
+*** noduplicate
+**** calls to the function cannot be duplicated
+**** call to it may be moved within parent function, but cannot be duplicated within parent function
+**** function containing a ~noduplicate~ call may still be inline, implying that the function has ~internal linkage~ and only has one call site
+*** noimplicitfloat
+**** disable implicit FP instructions
+*** noinline
+**** indicate the inliner should never inline function in any situation
+*** TODO noredzone
+**** don't use a red zone even if the target-specific ABI permits
+*** noreturn
+**** indicate the function never returns normally
+**** undefined behavoir at runtime if the function does dynamically return
+*** nounwind
+**** indicate the function never returns with an unwind or exceptional control flow; undefined if does unwind
+*** optsize
+**** keep the code size of the function low otherwise do optimizations specifically to reduce code size
+*** readone
+**** indicate the function computes its result(or decides to unwind an exception) based strictly on its arguments, without dereferencing any pointer arguments or otherwise accessing any mutable state(memory, registers, etc) visible to the caller
+**** do not write through ANY pointer arguments(including ~byval~ arguments) and never changes any state visible to callers.
+**** cannot unwind exceptions by calling C++ exception throwing methods.
+*** returns_twice
+**** indicate that the function can return twice(for instance, *setjump* in C)
+**** disable some optimizations in the caller of the function
+*** sanitize_address
+**** ~AddressSanitizer~ checks(dynamic address safety analysis) are enabled
+*** sanitize_memory
+**** MemorySanitizer checks(dynamic detection of accesses to uninitialized memory) are enabled
+*** sanitize_thread
+**** ThreadSanitizer checks(dynamic thread safety analysis) are enabled
+*** ssp - stack smashing protector
+**** the function should emit a stack smashing protector
+**** uses a random value placed on the stack before local variables that's checked upon return from the function to see whether it has been overwritten
+**** A heuristic is used to determine if a function needs ssp or not, the following functions would be protected:
+***** character arrays larger than ssp-buffer-size(default 8)
+***** aggregates containing character arrays larget than ssp-buffer-size
+***** calls to alloca() with variable size or constant sizes greater than ssp-buffer-size
+***** the resultant "caller" function would be ssp if the ssp "callee" is inlined
+*** sspreq
+**** *always* emit a stack smashing protector, overrides ~ssp~
+**** the resultant "caller" function would have ~sspreq~ if the original caller is not ~sspreq~ or ~ssp~ or ~sspstrong~ but the callee has an ~sspreq~
+*** sspstrong
+**** similar to ~ssp~, but the heuristic is stronger; overrides ~ssp~
+**** heuristics to protect functions with:
+***** arrays of any size and type
+***** arrgregates containing an array of any size and type
+***** calls to alloca()
+***** local variables that have had their address taken
+***** the resultant "caller" function would be ~sspstrong~ if the ~sspstrong~ "callee" is inlined
+*** uwtable
+**** ABI being targeted requires that an ~unwind~ table entry be produced for this function even if it is ensured that no exceptions passed by it.
+**** normally the case for the ELF x86-64 abi, can be disabled for some compilation units
+** Module-Level Inline Assembly
+*** corresponding to GCC "file scope inline asm"
+*** internally concatenated by LLVM and treated as a single unit, but may be separated in
+*** The strings can contain ANY character by escaping non-printable chars *\xx*; and would be printed to machine code *.s* file when assembly is generated
+#+BEGIN_SRC llvm
+module asm "inline asm code goes here"
+#+END_SRC
+** Data Layout
+#+BEGIN_SRC llvm
+target datalayout = "layout specification"
+#+END_SRC
+*** SPECS
+**** a list of specifications separated by *-*
+**** each starts with a letter, might include other info
+*** accepted SPECS
+**** *E* big-endian
+**** *e* little-endian
+**** *S<size>* natural alignment of the stack in bits, multiple of 8-bits; defaults to "unspecified"(does not prevent any alignment promotions) if omitted
+**** *p[n]:<size>:<abi>:<pref>* *size* (in bits) of a pointer and its *abi* and *pref* erred alignments for address space *n*. If *n* not specified, defaults to address space 0; n \in [1,2^23)
+**** *i<size>:<abi>:<pref>* alignment for an integer type
+**** *v<size>:<abi>:<pref>* alignment for vector type
+**** *f<size>:<abi>:<pref>* alignment for FP. Only values of *size* that are supported by the target will work. 32 and 64 are supported on ALL targets; 80 or 128 are also supported on SOME targets.
+**** *a<size>:<abi>:<pref>* alignment for an aggregate type
+**** *s<size>:<abi>:<pref>* alignment for a stack object
+**** *n<size1>:<size2>:<size3>...* a set of native integer widths for target CPU in bits. Elments of this set are considered to support most general arithmetic operations efficiently.
+*** default SPECS:
+**** E - big endian
+**** p:64:64:64 - 64-bit pointers with 64-bit alignment
+**** p1:32:32:32 - 32-bit pointers with 32-bit alignment for address space 1
+**** p2:16:32:32 - 16-bit pointers with 32-bit alignment for address space 2
+**** i1:8:8 - i1 is 8-bit (byte) aligned
+**** i8:8:8 - i8 is 8-bit (byte) aligned
+**** i16:16:16 - i16 is 16-bit aligned
+**** i32:32:32 - i32 is 32-bit aligned
+**** i64:32:64 - i64 has ABI alignment of 32-bits but preferred alignment of 64-bits
+**** f32:32:32 - float is 32-bit aligned
+**** f64:64:64 - double is 64-bit aligned
+**** v64:64:64 - 64-bit vector is 64-bit aligned
+**** v128:128:128 - 128-bit vector is 128-bit aligned
+**** a0:0:1 - aggregates are 8-bit aligned
+**** s0:64:64 - stack objects are 64-bit aligned
+*** Determining rules:  
+****  exact match - OK
+****  no match, integer type - smallest larger integer type,or largest integer type if sought type bitwidth is larger than any given
+****  no match,vector type - largest smaller vector type
+*** If specified, the target data layout is required to match what the ultimate *code generator* expects.
+** Pointer Aliasing Rules
+*** Pointer values are associated with an address ranges according to these rules:
+**** associated with the addresses associated with any value it is based on.
+**** An address of a global variable is associated with the address range of the variable’s storage.
+**** The result value of an allocation instruction is associated with the address range of the allocated storage.
+**** A null pointer in the default address-space is associated with no address.
+**** An integer constant other than zero or a pointer value returned from a function not defined within LLVM may be associated with address ranges allocated through mechanisms other than those provided by LLVM. Such ranges shall not overlap with any ranges of addresses allocated by mechanisms provided by LLVM.
+
+*** A pointer value is based on another pointer value:
+**** A pointer value formed from a ~getelementptr~ operation is based on the first operand of the getelementptr.
+**** The result value of a bitcast is based on the operand of the bitcast.
+**** A pointer value formed by an inttoptr is based on all pointer ~values~ that contribute (directly or indirectly) to the computation of the pointer's value.
+**** The "based on" relationship is transitive.
+*** Notes
+****  ~based~ is similar to C99 _based_ but weaker
+****  LLVM IR does not associate types with memory
+****  type-based alias analysis(TBAA, ~-fstrict-aliasing~) is not applicable to general unadorned LLVM IR,needing ~metadata~
+
+** Volatile Memory Accesses
+*** ~load~, ~store~ and ~llvm.memcpy~ may be marked *volatile*.
+*** optimizers must not change order of volatile relative to other volatile operations, but can chnge order relative to non-volatile operations
+*** different from Java's volatile and has no cross-thread synchronization
+*** IR level volatile ~load~ and ~store~ cannot safely be optimized into ~llvm.memocpy~ or ~llvm.memmove~ even when those intrinsics are flagged volatile; the backend should never split or merge target-legal volatile ~load~ / ~store~ .
+#+BEGIN_QUOTE 
+  Platforms may rely on volatile loads and stores of natively supported data width to be executed as single instruction. For example, in C this holds for an l-value of volatile primitive type with native hardware support, but not necessarily for aggregate types. The frontend upholds these expectations, which are intentionally unspecified in the IR. The rules above ensure that IR transformation do not violate the frontend’s contract with the language.
+#+END_QUOTE
+** Memory Model for Concurrent Operations
+*** LLVM IR doesn't define ANY way to start parallel threads of execution or to register signal handlers, but platform-specific approaches are available(similar to C++0x memory model).
+*** see [[LLVM Atomic Instructions and Concurrency Guide][http://llvm.org/docs/Atomics.html]] for more information
+** Atomic Memory Ordering Constraints
+** Fast-Math Flags
