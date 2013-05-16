@@ -1,6 +1,5 @@
 #+OPTIONS: ^:nil TOC:2
 
-
 * Abstract
 * Introduction
 ** 3 code representation forms of llvm IR:
@@ -438,3 +437,197 @@ target datalayout = "layout specification"
 *** see [[LLVM Atomic Instructions and Concurrency Guide][http://llvm.org/docs/Atomics.html]] for more information
 ** Atomic Memory Ordering Constraints
 ** Fast-Math Flags
+* Type System
+** type classifications
+
+| Classification | Types                                                         |
+|----------------+---------------------------------------------------------------|
+| primitive      | label, void, _floating point_, x86mmx, metadata.              |
+| derived        | _integer_,array, function, pointer, structure, vector, opaque |
+
+*** ~llvm/Type.h~, ~llvm/DerivedTypes.h~; in llvm-3.3, they are put in ~llvm/IR~
+*** every ~Value~ in llvm has a ~Type(Value.getType())~
+*** _FirstClassType_: the only ones which can be produced by instructions,valid type for a Value; all types except ~function/void/opaque~
+*** __SingleValueType__: valid type for a virtual register in codegen,first-class type except struct/array
+*** __Sized__:primitive types except ~VoidTy~(whose size is 0) or concrete ~Struct/Array/Vector~
+
+** Primitive Types
+
+*** Integer Type  
+#+BEGIN_SRC llvm
+;Syntax:
+iN  (N is in [1,2^23 -1])
+;Examples:
+i1            #a single-bit integer.
+i32           #a 32-bit integer.
+i1942652      #a really big integer of over 1 million bits.
+#+END_SRC
+
+*** Floating Point Types
+
+| Type      | Description               |
+|-----------+---------------------------|
+| half      | 16-bit(not in llvm2.9)    |
+| float     | 32-bit                    |
+| double    | 64-bit                    |
+| fp128     | 128-bit(112-bit mantissa) |
+| x86_fp80  | 80-bit(X87)               |
+| ppc_fp128 | 128-bit(two 64-bits)      |
+
+*** X86mmx Type
+**** represents a value held in an MMX register on an x86 machine;allowed operations:parameters and return values, load and store, bitcast.
+
+*** Metadata Type
+**** represents embedded metadata,no derived types may be created from metadata except for function arguments
+
+*** Derived Types
+There's some information on [Programmer's manual](http://llvm.org/docs/ProgrammersManual.html#the-type-class-and-derived-types) for important derived types.
+####Aggregate Types
+
+*  Array Type  ~[<# elements> x <elementtype>]~  
+{%highlight llvm%}
+[41 x i32]            ; Array of 41 32-bit integer values.
+[12 x [10 x float]]   ; 12x10 array of single precision floating point values.
+[2 x [3 x [4 x i16]]] ; 2x3x4 array of 16-bit integer values.
+{%endhighlight%}
+*  Structure Type 
+Elements type:all but ~void~.__literal__ or __identified__/__packed__ or __unpacked__
+
+Type      |recusive   |opaque   |remark   |
+:--------:|:---------:|:-------:|:--------|
+literal   |no         |no       |defined inline with other types (e.g. {i32, i32}*) 
+identified|yes        |yes      |always defined at the top level with a name
+
+<br>
+
+Type       |layout                        |
+:---------:|:-----------------------------|
+packed     |alignment: 1 byte;no padding
+unpacked   |padding defined by ~DataLayout~
+
+{%highlight llvm%}
+;Syntax:
+%T1 = type { <type list> }     ; Identified normal struct type
+%T2 = type <{ <type list> }>   ; Identified packed struct type
+;Examples:
+{ i32, i32, i32 }              ; A triple of three i32 values
+{ float, i32 (i32) * }         ; A pair, first element is a float, second is a pointer to a function that takes an i32, returning an i32.
+<{ i8, i32 }>                  ; A packed struct known to be 5 bytes in size.
+{%endhighlight%}
+
+__Note__: Opaque structure types represent named structure types that do not have a body specified, e.g.  ~%X = type opaque~
+
+__Function Type__(function signature)
+{%highlight llvm%}
+;Syntax:
+<returntype> (<parameter list>)
+;Example:
+float (i16, i32 *) *  ;Pointer to a function that takes an i16 and a pointer to i32, returning float.
+i32 (i8*, ...)        ;A vararg function taking >=one pointer to i8 (char in C), which returns an integer(it's signature for printf in LLVM).
+{%endhighlight%}
+
+__Pointer Type__ may have an optional address space attribute defining the numbered address space(target-specific,default=0) where the pointed-to object resides.LLVM does not permit pointers to _void_ (void*) nor does it permit pointers to _labels_ (label*).
+
+{%highlight llvm%}
+[4 x i32]*        ; A pointer to array of four i32 values.
+i32 (i32*) *      ; A pointer to a function that takes an i32*, returning an i32.
+i32 addrspace(5)* ; A pointer to an i32 value that resides in address space #5.
+{%endhighlight%}
+
+__Vector Type__ used in SIMD
+{%highlight llvm%}
+;Syntax:
+< <# elements> x <elementtype> > 
+;Examples:
+<2 x i64>   #Vector of 2 64-bit integer values.
+<4 x i64*>  #Vector of 4 pointers to 64-bit integer values.
+{%endhighlight%}
+
+
+##Constants
+###1. Simple Constants
+- Boolean constants(~true~,~false~)
+- Boolean constants(~4~)
+- Floating point constants(~1.23421e+2~)
+- Null pointer constants(~null~)
+
+###2. Complex Constants
+- Structure constants(a comma separated list of elements, surrounded by braces,~{ i32 4, float 17.0, i32* @G }~)
+- Array constants(a comma separated list of elements, surrounded by square brackets,~[ i32 42, i32 11, i32 74 ]~)
+- Vector constants(a comma separated list of elements, surrounded by less-than/greater-than,~< i32 42, i32 11, i32 74, i32 100 >~)
+- Zero initialization(~zeroinitializer~)
+- Metadata node(~metadata !{ i32 0, metadata !"test" }~)
+
+###3. Global Variable and Function Addresses
+{%highlight llvm%}
+@X = global i32 17
+@Y = global i32 42
+@Z = global [2 x i32*] [ i32* @X, i32* @Y ]
+{%endhighlight%}
+
+###4. Undefined Values
+###5. Poison Values
+Similiar to ~undef~ values,currently only exist when produced by operations such as ~add~ with the ~nsw~ flag.
+###6. Addresses of Basic Blocks
+~blockaddress(@function, %block)~,computes the address of the specified basic block in the specified function, and always has an i8* type;exclude _entry_ block.
+
+###6. Constant Expressions
+
+Expressions               |usage            |
+:------------------------:|:----------------|
+trunc (CST to TYPE)       |int->int
+zext (CST to TYPE)        |int->int
+sext (CST to TYPE)        |int->int
+fptrunc (CST to TYPE)     |fp->fp
+fpext (CST to TYPE)       |fp->fp
+
+Other Values
+---
+###Inline Assembler Expressions
+Only used with ~call~ and ~invoke~
+{%highlight llvm%}
+%X = call i32 asm "bswap $0", "=r,r"(i32 %Y)
+call void asm sideeffect "eieio", ""() ;sideeffect comes first with other keyword
+call void asm alignstack "eieio", ""()
+call void asm inteldialect "eieio", ""()
+{%endhighlight%}
+
+###Metadata Nodes and Metadata Strings
+two metadata primitives: strings and nodes
+- metadata string: ~!"test\00"~
+- metadata node: ~!{ metadata !"test\00", i32 10}~
+{%highlight llvm%}
+!foo =  metadata !{!4, !3}       ;named metadata
+call void @llvm.dbg.value(metadata !24, i64 0, metadata !25)  ;function arguments
+%indvar.next = add i64 %indvar, 1, !dbg !21
+{%endhighlight%}
+####~tbaa~ Metadata
+metadata is added to the IR to describe a type system of a higher level language.
+{%highlight llvm%}
+!0 = metadata !{ metadata !"an example type tree" }
+!1 = metadata !{ metadata !"int", metadata !0 }
+!2 = metadata !{ metadata !"float", metadata !0 }
+!3 = metadata !{ metadata !"const float", metadata !2, i64 1 }
+{%endhighlight%}
+
+####~tbaa.struct~ Metadata
+{%highlight llvm %}
+;describes a struct with two fields,
+;1st is at offset 0 bytes with size 4 bytes, and has tbaa tag !1;
+;2nd is at offset 8 bytes and has size 4 bytes and has tbaa tag !2
+!4 = metadata !{ i64 0, i64 4, metadata !1, i64 8, i64 4, metadata !2 }
+{%endhighlight%}
+
+####~fpmath~ Metadata
+attached to any instruction of floating point type,express the maximum acceptable error in the result of that instruction, in ULPs
+####~range~ Metadata
+attached only to loads of integer types,expresses the possible ranges the loaded value is in
+
+###Module Flags Metadata
+~llvm.module.flags~ named metadata exists in order to transmit Information about the module as a whole.
+
+###Intrinsic Global Variables
+- ~llvm.metadata~: an array with i8* element type which has appending linkage,if a global variable appears in the ~@llvm.used~ list, then the compiler, assembler, and linker are required to treat the symbol as if there is a reference to the global that it cannot see. 
+- ~llvm.compiler.used~:only prevents the compiler from touching the symbol
+- ~llvm.global_ctors~:constructor functions and associated priorities
+- ~llvm.global_dtors~:destructor functions and associated priorities
