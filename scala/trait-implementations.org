@@ -1,5 +1,4 @@
-```scala
-
+#+BEGIN_SRC scala
 trait Foo {
   def bar = { println("in_foo") }
 }
@@ -7,10 +6,11 @@ trait Foo {
 class Baz extends Foo{
   override def bar = { println("in_bar")}
 }
-```
-Using [JD-GUI](http://java.decompiler.free.fr/?q=jdgui) we can get the java form of the class files(`Baz`,`Foo` and `Foo$class`; <em>Predef.</em> should be _Predef$_)  
+#+END_SRC
 
-```java
+Using [[http://java.decompiler.free.fr/?q=jdgui][JD-GUI]] we can get the java form of the class files(~Baz~, ~Foo~ and ~Foo$class~; *Predef.* should be _Predef$_)  
+
+#+BEGIN_SRC java
 public abstract class Foo$class{
   public static void bar(Foo $this)  {
     Predef$.MODULE$.println("in_foo");
@@ -18,12 +18,10 @@ public abstract class Foo$class{
   public static void $init$(Foo $this)  {
   }
 }
-
 public abstract interface Foo extends ScalaObject
 {
   public abstract void bar();
 }
-
 public class Baz implements Foo{
   public void bar(){
     Predef$.MODULE$.println("in_bar");
@@ -32,4 +30,5 @@ public class Baz implements Foo{
     Foo.class.$init$(this);
   }
 }
-```
+#+END_SRC
+

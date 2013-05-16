@@ -1,4 +1,4 @@
-```scala
+#+BEGIN_SRC scala
 def callByName[T](block: => T) = {
     for( i<-0 until 3){
         println(block)
@@ -14,10 +14,12 @@ def sum = {
     a = a + 1
     a
 }
-```
-`Block` would be computed only once when called by `callByValue`, while it would be computed each time by `callByName`.
+#+END_SRC
 
-```scala
+~Block~ would be computed only once when called by ~callByValue~, while it would be computed each time by ~callByName~.
+
+
+#+BEGIN_SRC scala
 scala> callByValue(sum)
 2
 2
@@ -26,4 +28,5 @@ scala> callByName(sum)
 3
 4
 5
-``` 
+#+END_SRC
+

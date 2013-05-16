@@ -1,17 +1,16 @@
-###Java Language Specification 14.21.[Unreachable Statements](http://docs.oracle.com/javase/specs/jls/se7/html/jls-14.html#jls-14.21)
+*** Java Language Specification 14.21.[[http://docs.oracle.com/javase/specs/jls/se7/html/jls-14.html#jls-14.21][Unreachable Statements]]
 
-1. It is a *compile-time error* if a statement cannot be executed because it is unreachable.
-1. Except for the special treatment of *while*, *do*, and *for* statements(without *if*!) whose condition expression has the constant value *true*, the values of expressions are not taken into account in the flow analysis.
-1. The rationale for differing treatment with *if* is to allow programmers to define "flag variables"  for *conditional compilation* purposes,e.g.
+**** It is a *compile-time error* if a statement cannot be executed because it is unreachable.
+**** Except for the special treatment of *while*, *do*, and *for* statements(without *if*!) whose condition expression has the constant value *true*, the values of expressions are not taken into account in the flow analysis.
+**** The rationale for differing treatment with *if* is to allow programmers to define "flag variables"  for *conditional compilation* purposes,e.g.
 
-  ```java
+#+BEGIN_SRC java
   static final boolean DEBUG = false;
   if (DEBUG) { x=3; }
-  ```
+#+END_SRC
 
-###Examples:
-
-```java
+**** Examples:
+#+BEGIN_SRC java
 //Segment A (Compilation Error)
 public void javapapers() {
     System.out.println("java");
@@ -47,4 +46,4 @@ public void javapapers(){
 public void javapapers(){
     if(false)System.out.println("javapapers");//reachable
 }
-```
+#+END_SRC

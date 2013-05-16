@@ -1,6 +1,8 @@
-It is just like REPL in Python,`tab` for completion is also supported.
+#+OPTIONS: ^:nil
 
-```bash
+It is just like REPL in Python,~tab~ for completion is also supported.
+
+#+BEGIN_SRC sh
 :cp <path>                 add a jar or directory to the classpath
 :help [command]            print this summary or command-specific help
 :history [num]             show the history (optional num is commands to show)
@@ -17,26 +19,29 @@ It is just like REPL in Python,`tab` for completion is also supported.
 :sh <command line>         run a shell command (result is implicitly => List[String])
 :silent                    disable/enable automatic printing of results
 :type <expr>               display the type of an expression without evaluating it
-```
-If we use the `:power`, we'll get the following statements():
+#+END_SRC
 
-```bash
+If we use the ~:power~, we'll get the following statements():
+
+    #+BEGIN_SRC sh
 ** Power User mode enabled - BEEP BOOP SPIZ **
 ** :phase has been set to 'typer'.          **
 ** scala.tools.nsc._ has been imported      **
 ** global._ and definitions._ also imported **
 ** Try  :help,  vals.<tab>,  power.<tab>    **
-```
+#+END_SRC
+
 Then 3 additional command is supported:  
 
-```bash
+#+BEGIN_SRC sh
 :dump displays a view of the interpreter's internal state
 :phase <phase> set the implicit phase for power commands
 :wrap <method> * name of method to wrap around each repl line
-```
-`wrap` is marked with `*` so it has more detailed help(`:he wrapper`). It is more like a Python `decorator`. You can define a custom method to wrap around each REPL line.
+#+END_SRC
 
-```bash
+~wrap~ is marked with ~*~ so it has more detailed help(~:he wrapper~). It is more like a Python ~decorator~. You can define a custom method to wrap around each REPL line.
+
+#+BEGIN_SRC scala
 #paste mode is not useful for this wrap
 scala> def timed[T](body: => T): T = {
      |   val start = System.nanoTime
@@ -49,10 +54,10 @@ Set wrapper to 'timed'
 scala> val l = List(1,2,3)
 334949 nanos elapsed.
 l: List[Int] = List(1, 2, 3)
-```
-Run scala scripts directly in a shell script:
+#+END_SRC
 
-```bash
+Run scala scripts directly in a shell script:
+#+BEGIN_SRC scala
 #!/bin/sh
 exec scala "$0" "$@"
 !#
@@ -62,29 +67,32 @@ object HelloWorld {
     }
 }
 HelloWorld.main(args)
+#+END_SRC
 
-```
-`/usr/bin/env scala` gives a lightweight way to run script using scala([TODO:why](http://stackoverflow.com/questions/14030684/two-ways-of-starting-a-scala-script-which-is-preferable)).
+~/usr/bin/env scala~ gives a lightweight way to run script using scala([TODO:why](http://stackoverflow.com/questions/14030684/two-ways-of-starting-a-scala-script-which-is-preferable)).
 
-```bash
+#+BEGIN_SRC scala
 #!/usr/bin/env scala
 !#
 println("hello world")
-```
+#+END_SRC
+
 In Windows, there's a similiar way.
 
-```bat
+#+BEGIN_SRC scala
 ::#!
 @echo off
 call scala %0 %*
 goto :eof
 ::!#
 println("Hello world "+ args(0) +"!")
-```
-Or we can use `scala test.scala [args_list]` to run the script,like:
+#+END_SRC
 
-```scala
+Or we can use ~scala test.scala [args_list]~ to run the script,like:
+
+#+BEGIN_SRC scala
 //test.scala
 println("Hello world "+argv(0))
-```
-We can also load scala script using `:load script.scala`,which is like `execfile("script.py")` in Python(`python -i script.py` or `#!/usr/bin/python -i` is also available in python),however we __cannot__ load any other args.
+#+END_SRC
+
+We can also load scala script using ~:load script.scala~, which is like ~execfile("script.py")~ in Python(~python -i script.py~ or ~#!/usr/bin/python -i~ is also available in python),however we __cannot__ load any other args.

@@ -1,12 +1,14 @@
 In scala, the tuple is a container.
 
-```scala
+#+BEGIN_SRC scala
 val tuple = ("nonoob", "leftcopy.chx@gmail.com", "blahblah...")
 println(tuple._1)
-```
+#+END_SRC
+
+
 We can implement this feature in Java.
 
-```java
+#+BEGIN_SRC java
 public class Tuple<A> {
      
     public static <A> Tuple mk(A ... args){
@@ -31,4 +33,4 @@ public class Tuple<A> {
         System.out.println(t._(0));
     }
 }
-```
+#+END_SRC

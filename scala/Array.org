@@ -1,4 +1,4 @@
-```scala
+#+BEGIN_SRC scala
 object Main extends App {
   class A {
     var a=0
@@ -14,4 +14,4 @@ object Main extends App {
   println(c(0).a) //prints 9
   println(c(1).a) //prints 9
 }
-```
+#+END_SRC

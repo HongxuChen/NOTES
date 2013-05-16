@@ -1,6 +1,6 @@
-[15.5. optparse — Parser for command line options](http://docs.python.org/2/library/optparse.html)
+* [[http://docs.python.org/2/library/optparse.html[15.5. optparse — Parser for command line options ]]]
 
-```python
+#+BEGIN_SRC python
 #!/usr/bin/python
 import optparse
 from optparse import OptionParser
@@ -23,4 +23,6 @@ def main():
     print options.filename
 if __name__ == "__main__":
     main()
-```
+#+END_SRC
+
+

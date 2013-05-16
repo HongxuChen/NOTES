@@ -1,4 +1,4 @@
-#Ch01: Why Nerds Are Unpopular
+* Why Nerds Are Unpopular
 
 Being smart seems to make you unpopular.
 
@@ -91,7 +91,7 @@ School is a strange, artificial thing, half sterile and half feral. It's all-enc
 
 Several problems we take for granted are in fact not insoluble after all.
 
-#Ch02: Hackers and Painters
+* Hackers and Painters
 
 Hacking and painting have a lot in common. In fact, of all the different types of people I've known, hacker and painters are among the most alike.
 
@@ -211,7 +211,7 @@ A new medium appears, and people are so excited about it that they explore most 
 
 How cool hacking turns out to be will depend on what we can do with this new medium.
 
-#Ch03: What You Can't Say
+* What You Can't Say
 
 Fashion is mistaken for good design; moral fashion is mistaken for good.
 
@@ -277,7 +277,7 @@ From one end of a pendulum's swing, the other end seems especially fa away.
 
 Always be questioning. That's the only defence.
 
-#Ch04: Good Bad Attitude
+* Good Bad Attitude
 
 There is a gradual continuum between rule breaking that's merely ugly and rule breaking that is brilliantly imaginative.
 
@@ -289,7 +289,7 @@ Hackers are unruly. That is the essence of hacking.
 
 The spirit of resistance to government is so valuable on certain that I will it always to be kept alive. Thomas Jefferson
 
-#Ch05: The other Road Ahead
+* The other Road Ahead
 
 The whole idea of "your computer" is going away, and being replace with "your data".
 
@@ -355,7 +355,7 @@ Without the incentive of wealth, no one wants to do it.
 
 The same recipe that make individual rich make countries powerful.
 
-#Ch07: Mind the Gap
+* Mind the Gap
 
 Perhaps the CEO or the professional athlete has only ten times(Whatever that means) the skill and determination of an ordinary person. But it makes all the difference that it's concentrated in one individual.
 
@@ -368,13 +368,13 @@ Will people create if they can't get paid for it? Only if it's fun.
 
 Society as a whole ends up poorer.
 
-#Ch08: A Plan for Spam
+* A Plan for Spam
 
 It's absolute poverty you want to avoid, not relative poverty.
 
 If you compete with slaves you become a slave.
 
-#Ch09: Taste for Makers
+* Taste for Makers
 
 Good design is simple.
 
