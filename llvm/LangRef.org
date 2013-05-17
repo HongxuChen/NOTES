@@ -448,11 +448,11 @@ target datalayout = "layout specification"
 *** ~llvm/Type.h~, ~llvm/DerivedTypes.h~; in llvm-3.3, they are put in ~llvm/IR~
 *** every ~Value~ in llvm has a ~Type(Value.getType())~
 *** _FirstClassType_: the only ones which can be produced by instructions,valid type for a Value; all types except ~function/void/opaque~
-*** __SingleValueType__: valid type for a virtual register in codegen,first-class type except struct/array
-*** __Sized__:primitive types except ~VoidTy~(whose size is 0) or concrete ~Struct/Array/Vector~
+*** _SingleValueType_: valid type for a virtual register in codegen,first-class type except struct/array
+*** _Sized_:primitive types except ~VoidTy~(whose size is 0) or concrete ~Struct/Array/Vector~
+
 
 ** Primitive Types
-
 *** Integer Type  
 #+BEGIN_SRC llvm
 ;Syntax:
@@ -462,9 +462,7 @@ i1            #a single-bit integer.
 i32           #a 32-bit integer.
 i1942652      #a really big integer of over 1 million bits.
 #+END_SRC
-
 *** Floating Point Types
-
 | Type      | Description               |
 |-----------+---------------------------|
 | half      | 16-bit(not in llvm2.9)    |
@@ -473,17 +471,21 @@ i1942652      #a really big integer of over 1 million bits.
 | fp128     | 128-bit(112-bit mantissa) |
 | x86_fp80  | 80-bit(X87)               |
 | ppc_fp128 | 128-bit(two 64-bits)      |
-
 *** X86mmx Type
-**** represents a value held in an MMX register on an x86 machine;allowed operations:parameters and return values, load and store, bitcast.
-
+**** represents a value held in an MMX register on an x86 machine
+**** allowed operations: parameters and return values, load and store, bitcast.
+*** Void Type
+does not represent any value and has not type.
+*** Label Type
+represent code labels
 *** Metadata Type
-**** represents embedded metadata,no derived types may be created from metadata except for function arguments
-
-*** Derived Types
-There's some information on [Programmer's manual](http://llvm.org/docs/ProgrammersManual.html#the-type-class-and-derived-types) for important derived types.
-####Aggregate Types
-
+**** represents embedded metadata
+**** no derived types may be created from metadata except for ~function~ arguments
+** Derived Types
+There's some tricks on [[http://llvm.org/docs/ProgrammersManual.html#the-type-class-and-derived-types][Programmer's manual]] for important derived types.
+*** Aggregate Types
+**** derived types containing multiple member types
+**** ~array~ and ~structs~ are aggregate types, but ~vector~ is not
 *  Array Type  ~[<# elements> x <elementtype>]~  
 {%highlight llvm%}
 [41 x i32]            ; Array of 41 32-bit integer values.
