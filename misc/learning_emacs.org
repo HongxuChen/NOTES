@@ -202,3 +202,29 @@ src_emacs-lisp{(list 'foo default-directory 'bar)}.
 #+END_SRC
 
 
+
+* equality
+#+BEGIN_SRC elisp
+(eq 3 3);; t
+(eq 3.0 3) ;; nil
+(eq 3.0 3.0) ;; nil
+(eql 3.0 3.0) ;; t, the ONLY difference with `eq'
+(equal 3.0 3.0) ;; t,same as `eql' when comparing numbers
+(equal 3.0 3) ;; nil
+(equalp 3.0 3) ;; t, ignore types
+(= 3.0 3) ;; t, only for numbers and markers
+(eq 'a 'a) ;; t, chars are integers
+(eq "" "") ;; t, the ONLY exception
+(eq "foo" "foo") ;; nil, identical object
+(eq '(a . b) '(a . b)) ;; nil
+(equal "foo" "foo") ;; t
+(eq "foo" (copy-seq "foo")) ;; nil
+(equal "foo" (copy-seq "foo")) ;; t
+(equal "Foo" "foo") ;; case-insensitive
+(equalp "Foo" "foo") ;; t
+(equalp (make-symbol "foo") 'foo) ;; nil
+
+(memq 1.0 '(1.0 2.0))   ;; nil
+(member 1.0 '(1.0 2.0)) ;; (1.0 2.0)
+#+END_SRC
+

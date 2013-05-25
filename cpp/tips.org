@@ -6,3 +6,15 @@
 ** if interface separation is adapted, both declaration and definition need the keyword
 * always use expression without side effect in `assert` macro
 * construct member variable in order they defined(`-Wreorder`)
+* ~mutable~ and ~volatile~
+** ~mutable~ is related to *const*, a member of a class
+*** mutable field can be changed even in an object accessed through a *const* pointer or reference, or in a *const* object
+*** the compiler KNOWS when a mutable object changes.
+** ~volatile~ is related to *register*
+*** compiler prevent ~volatile~ variable from being put into register
+*** ~volatile~ location is one that can be changed by code the compiler DOESN'T know(e.g. some kernel-level driver)
+* CV(const-volatility) specifiers
+http://en.cppreference.com/w/cpp/language/cv
+** const
+** volatile
+** mutable

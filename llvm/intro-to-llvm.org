@@ -1,0 +1,75 @@
+#+TITLE: Introduction to the LLVM Compiler System
+
+* Overview
+** LLVM Project utilizes
+*** Optimizer and Code Generator
+*** llvm-gcc, clang... Front-ends
+*** MSIL and .NET like VMs
+** Existing Compilers
+*** old code generation tech
+*** no modern tech like cross-file optzn and JIT codgen
+*** aging code bases
+*** cannot be reused
+*** getting slower
+** LLVM is superior 
+*** A set of production-quality reusable libs
+**** implement best-known techs drawing from modern literature
+**** focus on compile time & performance of generated code
+*** support different languages & apps
+** LLVM Vision and Approach
+*** Mission 1: a set of modular compiler components
+**** Reduce time & cost to construct a particular compiler
+**** components are shared across compilers
+**** allow choice of *right* component for the job
+*** Mission 2: build compilers out of these components
+e.g. C compiler, runtime specialization engine
+
+* llvm-gcc4.2
+** Features
+*** C, C++, Objective C, Ada and Fortran
+*** Supports almost all GCC language features and extensions
+*** Standard GCC command line options
+*** Supports many targets, including X86, X86-64, PowerPC, etc.
+*** Extremely compatible with GCC 4.2
+** llvm-gcc4.2 design
+*** reuse GCC parser and runtime libs
+*** replace GCC optimizer and codegen with LLVM
+** Linking LLVM and GCC code
+*** mix and match ~.o~ files between compilers
+*** call into libs(~.a~, ~.so~) built with other compilers
+** LTO
+*** Optimize across files with ~-O4~
+**** inline, constant fold, etc
+*** Optimize across language boundaries
+** Profiling
+*** Compile Time: SPEC INT 2000
+**** ~llvm-gcc -O4~ is faster than ~gcc -O2~
+*** Execution Time: SPEC 2000
+**** ~-O4~ is 20% faster than ~-O3~
+* Other LLVM Capabilities
+** For Compiler Hackers
+*** Great target for new languages
+**** well defined, simple to program for
+**** easy to retarget existing compiler to use LLVM backend
+*** JIT optzn and compilation
+**** Optzn at runtme based on dynamic info
+**** easy to retarget bytecode interpreter to LLVM JIT
+**** Great for performance
+*** TODO EXAMPLE: Colorspace Conversion JIT optzn
+*** EXAMPLE: Regex Compilation
+**** Many regex's are matched millions of times: match time is critical
+**** Common regex engine *compile* to *bytecode* and interpret
+***** regcomp/regexec
+**** Compile to native code: partial evaluation
+***** recomp compiles regex to a native function
+***** much faster matching, could even vectorize common idioms
+***** excellent way to handle multiple different unicode encodings
+
+* Clang Frontend
+** Overview
+*** C, Objective-C, C++ frontend
+*** aggressive project with goals
+**** compatibility with GCC
+**** fast compilation
+**** expressive error messages
+**** host for a broad range of source-level tools

@@ -1,24 +1,18 @@
-#+OPTIONS: toc:1
+abccde#+OPTIONS: toc:1
 #+TOC: listings
 #+TITLE: An Instruction to Emacs Lisp
 
 * Hello World
 * Fundamentals
-** Unlike =setq=, =defvar= would not change the value if it has already been defined.
+** =setq=, =defvar=
 #+BEGIN_SRC elisp
 (defvar variable-name value
   "document string")
 #+END_SRC
-
-** =let= and =let*= bindings, =let*= has the same form except that it can reference variables defined earlier in VARLIST
-#+BEGIN_SRC elisp
-(let (bindings)
-  body)
-#+END_SRC
-An example:
+** =let=, =let*=
 #+BEGIN_SRC elisp
 (defun circle-area (radix)
-  (let 
+  (let
     ((pi 3.1415926) area) ;; the varlist, but area cannot use pi now
     (setq area (* pi  radix radix))
     (message "radius=%.2f, area=%.2f" radix area)))
@@ -35,11 +29,6 @@ An example:
 #+END_SRC
 ** lambda expression
 #+BEGIN_SRC elisp
-(lambda (argument-list)
-  "document strings"
-  body)
-#+END_SRC
-#+BEGIN_SRC elisp
 (setq lambda_foo
       (lambda (name)
        (message "hello, %s" name) ))
@@ -47,30 +36,22 @@ An example:
 #+END_SRC
 ** control structure:
 *** sequential: =progn=; no need to use it when in special environment like =defun=
-*** conditional: =if= , =cond=
-#+BEGIN_SRC elisp
-(if condition
-    then_case
-  else_case)
-#+END_SRC
-#+BEGIN_SRC elisp
-(cond
- (cond_case1 do-when-case-1)
- (cond_case2 do-when-case-2)
- ...
- (t do-when-none-meet)
- )
-#+END_SRC
-Example:
+*** conditional:
+**** =when= and =unless= when the value of the conditional expression is *not* important
+**** use =and= / =or= when:
+***** return value is used by calling code
+***** tests are to be carried out sequentially until one fails(=and=) or succeeds(=or=), or until all have been tried
+**** =if= when only one condition, then and else branches
+**** =cond= when there a several test cases, similar with =or=, but evaluates a sequence of other sexps(implicit =progn=)
+**** =case= (part of =cl= package) if the same value is to be compared against several values(using =eql=).
 #+BEGIN_SRC elisp
 (defun my/fib (n)
   (cond ((= n 0) 0)
         ((= n 1) 1)
-        (t (+ (my/fib (- n 1)) (my/fib (- n 2))))
-        ))
+        (t (+ (my/fib (- n 1)) (my/fib (- n 2))))))
 (my/fib 19)
 #+END_SRC
-*** LOOP =WHILE=
+*** loop =while=
 #+BEGIN_SRC elisp
 (defun my-fact (n)
   (let ((res 1))
@@ -80,27 +61,25 @@ Example:
     res))
 (my-fact 10)
 #+END_SRC
-** logic operation =or=, =and=, =not=;
-=and= / =or= both has short-cut properties; =and= can be used to replace =when=, while =or= can be used to replace =unless=.
+** logic operation
+*** =and= / =or= both has short-cut properties
+*** =and= can be used to replace =when=
+*** =or= can be used to replace =unless=.
 #+BEGIN_SRC elisp
 (defun hello-world (&optional name)
   (or name (setq name "Emacser"))
   (message "hello, %s" name))
-(hello-world)
-(hello-world "Hongxu")
 #+END_SRC
 #+BEGIN_SRC elisp
 (defun square-number-p (n)
-  (and
-   (>= n 0)
-   (= (/ n (sqrt n)) (sqrt n))))
+  (and (>= n 0) (= (/ n (sqrt n)) (sqrt n))))
 (square-number-p -1)
 (square-number-p 25)
-(square-number-p 1025) ;; wrong for this one
+(square-number-p 1024) ;; wrong for this one
 #+END_SRC
 
 * Numbers
-** test function
+** test functions
 #+BEGIN_SRC elisp
 (integerp 1.)  ;;t
 (integerp 1.0) ;;nil
@@ -108,7 +87,7 @@ Example:
 (floatp -0.0e+NaN) ;;t
 (numberp 1)  ;;t
 #+END_SRC
-** comparison of numbers
+** comparison
 #+BEGIN_SRC elisp
 (setq foo (- (+ 1.0 1.0e-3) 1.0))
 (setq bar 1.0e-3)
@@ -132,41 +111,49 @@ Example:
 *** absolute value: =mod= and =%=
 #+BEGIN_SRC elisp
 (+ (% dividend divisor)
-   (* (/ dividend divisor) divisor));; dividend
+   (* (/ dividend divisor) divisor));; EQUALS dividend
 (+ (mod dividend divisor)
-   (* (floor dividend divisor) divisor)) ;; dividend
+   (* (floor dividend divisor) divisor)) ;; EQUALS dividend
 #+END_SRC
 *** sin,cos,tan,asin,acos,atan
 *** sqrt,exp,log10,random
 ** variables: =most-positive-fixnum=, =most-negative-fixnum=
-
 * Character and String
 #+BEGIN_SRC elisp
+(and ?\^I ?\^i ?\C-I ?\C-i ?\t) ;; 9
 (logior (lsh 1 27) ?A)  ;; 134217793
 ?\M-A                   ;; 134217793
+?\M-\C-b, ?\C-\M-b      ;; 134217730
 #+END_SRC
-** test function: string-or-null-p, char-or-string-p
+** test function:
+**** string-or-null-p, char-or-string-p
+**** no ~charp~ since chars are integers
 #+BEGIN_SRC elisp
 (defun string-emptyp (str)
   (not) (string< "" str))
 #+END_SRC
-** constructor:make-string,string,substring,concat
+*** construction
+**** make-string, string
+**** substring, concat
 #+BEGIN_SRC elisp
 (make-string 5 ?x)
 (string ?a ?b ?c)
 (substring "0123456789" 3)
 (substring "123456789" 3 5)
 (substring "123456789" -3 -1)
+(concat "abc" "a")
 #+END_SRC
-** comparison of strings: char-equal(case-fold-search), string=/string-equal, string</string-less
+** comparison of strings:
+*** char-equal(be careful with *case-fold-search*)
+*** string=/string-equal, string</string-less
 ** conversion functions
 *** char-to-string, string-to-char
 *** number-to-string, string-to-number
 #+BEGIN_SRC elisp
 (string-to-number "256")
 (number-to-string 256)
-(format "%#o" 256)
-(format "%#x" 256)
+(format "%o" 256)
+(format "%#x" 524287) ;; char in string upper bound
 #+END_SRC
 #+BEGIN_SRC elisp
 (defun number-to-bin-string (number)
@@ -180,26 +167,29 @@ Example:
 #+BEGIN_SRC elisp
 (concat '(?a ?b ?c ?d ?e))
 (concat [?a ?b ?c ?d ?e])
+(concat (list ?a ?b ?c ?d ?e))
 (vconcat "abcde") ;; [97 98 99 100 101], string->vector
 (append "abcde" nil) ;; (97 98 99 100 101), string->list
 #+END_SRC
-*** downcase, upcase; capitalize,upcase-initials
+*** downcase, upcase; capitalize, upcase-initials
 #+BEGIN_SRC elisp
 (downcase "The cat in the hat") ;; "the cat in the hat"
 (downcase ?X)    ;;120
 (upcase "The cat in the hat") ;; "THE CAT IN THE HAT"
-(upcase ?x)      ;;80
+(upcase ?x)      ;;88
 (capitalize "The CAT in tHe Hat")  ;; "The Cat In The Hat"
 (upcase-initials "The CAT in the HAt")  ;; "The CAT In The HAt"
 #+END_SRC
-** format strings
+** format strings:
+*** format
 ** search and replace
-*** string-match, match-data, match-beginning, match-end
+*** string-match,string-match-p; match-data, match-beginning, match-end
 #+BEGIN_SRC elisp
-(string-match "2*" "232*3=696")  ;; 0
+(string-match-p "2*" "232*3=696")  ;; 0, regex
 (string-match (regexp-quote "2*") "232*3=696")  ;; 2
+(string-match "2\\*" "232*3=696")
 (progn (string-match "3\\(4\\)" "01234567890123456789")
-       (match-data))  ;;(3 5 4 5)
+       (match-data))  ;;TODO (3 5 4 5)
 (let ((start 0))
   (while (string-match "34" "01234567890123456789" start)
     (princ (format "find at %d\n" (match-beginning 0)))
@@ -208,14 +198,14 @@ Example:
 *** replace-match, replace-regex-in-string, subst-char-in-string
 #+BEGIN_SRC elisp
 (let ((str "01234567890123456789"))
+  (print str)
   (string-match "34" str)
   (princ (replace-match "x" nil nil str 0))
   (princ "\n")
-  (princ str))
+  (print str))
 #+END_SRC
-* ~cons cell~ and ~list~
+* =cons cell= and =list=
 #+BEGIN_SRC elisp
-'(1 . 2)
 '(?a . 1)
 '(1 . "a")
 '(1 . nil)
@@ -223,22 +213,24 @@ Example:
 '(nil . nil)
 (read "(1 . 2)") ;; (1 . 2)
 nil   ;; nil is not `cons cell'
-'()
-(car nil)
+(car '())
 (cdr nil)
 #+END_SRC
+#+BEGIN_TABLE
 | type of list  | the CDR of last cons cell     |
 |---------------+-------------------------------|
 | true list     | nil                           |
 | dotted list   | neither =nil= nor =cons cell= |
 | circular list | point to previous cons cell   |
+#+END_TABLE
 #+BEGIN_SRC elisp
-'(1 2 3)   ;; (1 2 3), true list
-'(1 2 . 3) ;; (1 2 . 3), dotted list
-'(1 . #1= (2 3 . #1#))  ;; (1 2 3 . #1), circular list
+'(1 2 "a")   ;; (1 2 "a"), true list
 '(1 . (2 . (3 . nil))) ;;(1 2 3)
+'(1 2 . "a") ;; (1 2 . "a"), dotted list
+'(1 . #1= (2 3 . #1#))  ;; (1 2 3 . #1), circular list
 #+END_SRC
 ** test function
+NO built-in function testing whether a cons cell is *true list* since it's costly.
 #+BEGIN_SRC elisp
 (consp '(1 . 2))  ;;t
 (consp '(1 . (2 . nil))) ;; t
@@ -247,21 +239,23 @@ nil   ;; nil is not `cons cell'
 (listp '(1 . (2 . nil))) ;;t
 (listp nil)  ;;t
 #+END_SRC
-** constructors
+** construction
 #+BEGIN_SRC elisp
 (cons 1 2) ;;(1 . 2)
 (cons 1 '());;(1)
+(cons 1 nil) ;; (1)
 (cons 1 '(nil))  ;; (1 nil)
 (cons '(1 2) 3)
+(prog2 (setq foo '(a b))
+       (cons 'x foo) foo)
 (progn (setq foo '(a b))
-       (cons 'x foo))  ;;(x a b)
-(progn (setq foo '(a b))
-       (push 'x foo)
-       foo)  ;;(x a b)
+       (push 'x foo) foo)  ;;(x a b)
 (list (+ 1 2) 3 4)  ;;(3 3 4)
 '((+ 1 2) 3)  ;;((+ 1 2) 3)
+;; append change the last nil of the former to the sequential recursively
 (append '(a b) '(c)) ;;(a b c)
 (cons '(a b) '(c)) ;;((a b) c)
+;; last element of append is not required to be LIST
 (append '(a b) 'c)  ;;(a b . c)
 (append [a b] "cd" nil) ;;(a b 99 100)
 #+END_SRC
@@ -301,7 +295,7 @@ foo ;; (a)
 (reverse foo) ;;(c b a)
 foo ;;(a b c)
 (nreverse foo) ;;(c b a)
-foo  ;;(a)
+foo  ;;(a) destroyed pointer
 (setq foo '(3 2 4 1 5))
 (sort foo '<) ;;(1 2 3 4 5)
 foo  ;;(3 4 5)
@@ -309,7 +303,7 @@ foo  ;;(3 4 5)
 ** use list as set
 *** union: =append=
 *** delete duplicates: =delete-dups=
-*** equality/remove/delete: 
+*** equality/remove/delete:
 **** =memq=, =remq=, =delq= (with =eq=)
 **** =member=, =remove=,, =delete= (with =equal=)
 #+BEGIN_SRC elisp
@@ -321,15 +315,17 @@ foo            ;;(a c)
 #+END_SRC
 
 ** use list as association list
- hash table VIRSUS association list
+hash table VIRSUS association list
+#+BEGIN_TABLE
 |                   | hash table | association list   |
 |-------------------+------------+--------------------|
 | key               | no order   | ordered            |
 | functions         | maphash    | all list functions |
 | read/input syntax | no         | yes                |
+#+END_TABLE
 #+BEGIN_SRC elisp
-(assoc "a" '(("a" 97) ("b" 98))) ;;("a" 97)
-(setq a_v(assq 'a '((a . 97) (b . 98)))) ;;(a . 97)
+(assoc "a" '(("a" 97) ("b" 98))) ;;("a" 97), `equal'
+(setq a_v (assq 'a '((a . 97) (b . 98)))) ;;(a . 97) `eq'
 (cdr (assoc "a" '(("a" 97) ("b" 98))))  ;;(97)
 (cdr a_v) ;;(97)
 (assoc-default "a" '(("a" 97) ("b" 98))) ;;(97)
@@ -338,12 +334,10 @@ foo            ;;(a c)
 #+END_SRC
 #+BEGIN_SRC elisp
 (setq foo '(("a" . 97) ("b" . 98)))
-;; update value by setcdr
-(if (setq bar (assoc "a" foo))
+(progn (if (setq bar (assoc "a" foo))
     (setcdr bar "this is a")
   (setq foo (cons '("a" . "this is a") foo)))
-foo
-;; update value by delq and cons
+foo)
 (setq foo (cons '("a" . "this is a")
                 (delq (assoc "a" foo) foo)))
 #+END_SRC
@@ -351,26 +345,25 @@ foo
 ** traverse list
 #+BEGIN_SRC elisp
 (setq mylist '(1 2 3))
-(mapc '1+ mylist)  ;;(1 2 3)
-(mapcar '1+ mylist) ;;(2 3 4)
+(mapc '1+ mylist)  ;;(1 2 3), only used for side effect
+(mapcar '1+ mylist) ;;(2 3 4), return value changed
 mylist ;;(1 2 3)
 
-(dolist (foo '(1 2 3))
-  (incf foo))  ;;nil
+(dolist (foo '(1 2 3)) (incf foo))  ;;nil
+(progn
 (setq bar nil)
 (dolist (foo '(1 2 3) bar)
   (push (incf foo) bar)) ;;(4 3 2)
+)
 #+END_SRC
 ** other functions
 *** filter:remove-if,remove-fi-not(=cl=)
 #+BEGIN_SRC elisp
 (defun my-remove-if (predicate list)
   (delq nil (mapcar
-             (lambda (n)
-               (and (not (funcall predicate n)) n))
+             (lambda (n) (and (not (funcall predicate n)) n))
              list)))
-(defun evenp (n)
-  (= (% n 2) 0))
+(defun evenp (n) (= (% n 2) 0))
 (my-remove-if 'evenp '(0 1 2 3 4 5))
 #+END_SRC
 #+BEGIN_SRC elisp
@@ -381,7 +374,7 @@ mylist ;;(1 2 3)
 #+END_SRC
 *** split-string, mapconcat, identity
 #+BEGIN_SRC elisp
-(split-string "key = val" "\\s-*=\\s-*")  ;; ("key" "val")
+(split-string "key =   val" "\\s-*=\\s-*")  ;; ("key" "val")
 (mapconcat 'identity '("a" "b" "c") "_\t")  ;;"a_    b_    c"
 #+END_SRC
 ** Q&A
@@ -406,14 +399,15 @@ my-list  ;;(9 8 3 6)
 (my-subseq '(1 2 3 4 5 6) 2 4) ;;(3 4)
 #+END_SRC
 
-* ~seq~ and ~array~
+* =seq= and =array=
 all arrays have the features below:
 - The index starts from 0 and access of some element is in constant time
 - No way the change the length once created
-- self-evaluated(no need of ~quote~)
-- accessed by ~aref~, and set by ~aset~
-[[file:../IMAGES/seq_array.png]]  
-** test functions: ~sequencep~, ~arrayp~, ~vectorp~, ~bool-vector-p~
+- self-evaluated(no need of =quote=)
+- accessed by =aref=, and set by =aset=
+[[file:../images/seq_array.png]]
+** test functions: 
+*** sequencep, arrayp, vectorp, bool-vector-p
 ** general list functions:
 #+BEGIN_SRC elisp
 (safe-length '(a . b))  ;;1
@@ -428,21 +422,70 @@ all arrays have the features below:
 (vconcat [a b c] "aa" '(foo (6 7)))
 #+END_SRC
 ** Q&A
-*** test whethere some list is circular list (TODO)
-*** ~tr~ (TODO)
+*** test whethere some list is circular list
+#+BEGIN_SRC elisp
+(defun circular-list-p (list)
+(and (consp list)
+     (circular-list-p-1 (cdr list) list 0)))
+(defun circular-list-p-1 (tail halftail len)
+  (if (eq tail halftail)
+      t
+    (if (consp tail)
+        (circular-list-p-1 (cdr tail)
+                           (if (= (% len 2) 0)
+                               (cdr halftail)
+                             halftail)
+                           (1+ len))
+      nil)))
+(setq foo '(1 2 3))
+(circular-list-p foo)
+(setcdr foo foo)
+(circular-list-p foo)
+#+END_SRC
+*** TODO my-tr
+#+BEGIN_SRC elisp
+(defun my-tr (str from to)
+  (if (= (length to) 0)
+      (progn
+        (setq from (append from nil))
+        (concat
+         (delq nil
+               (mapcar (lambda (c)
+                         (if (member c from)
+                             nil c))
+                       (append str nil)))))
+    (let (table newstr pair)
+      (dotimes (i (length from))
+        (push (cons (aref from i) (aref to i)) table))
+      (dotimes (i (length str))
+        (push
+         (if (setq pair (assoc (aref str i) table))
+             (cdr pair)
+           (aref str i))
+         newstr))
+      (concat (nreverse newstr) nil))))
+(my-tr "abcdefg" "ace" "ACE")
+#+END_SRC
 * Symbols
+case-sensitive
 #+BEGIN_SRC elisp
 (symbolp '+1) ;; nil
+(symbol-name '+1) ;; error
+;; add `\' to be a symbol
 (symbolp '\+1) ;; t
 (symbol-name '\+1) ;; "+1"
+(symbol-name '\t) ;; "t"
 #+END_SRC
 ** create symbols
+*** There is global variable called =obarray= that associates the *symbol* and its *name*, which is a vector in elisp
+*** emacs would calculate the hash of the name and get the subscript whenever creating a symbol.
+*** whenever reading a symbol, it would check whether it is inside =obarray=; add it if not, which is called ~intern~ terminologically(defaults to =obarray=)
 #+BEGIN_SRC elisp
-(setq foo (make-vector 3 0))
+(setq foo (make-vector 3 'a))
 (intern-soft "abc" foo) ;; nil
 (intern "abc" foo) ;; abc
 (intern-soft "abc" foo) ;; abc
-foo  ;; [abc 0 0]
+foo  ;; [abc a a]
 
 (intern-soft "abc") ;; nil
 'abc  ;; abc
@@ -454,61 +497,88 @@ foo  ;; [abc 0 0]
 (intern-soft "abc" foo) ;; abc
 (unintern "abc" foo);; t
 (intern-soft "abc" foo) ;; nil
-
 #+END_SRC
 #+BEGIN_SRC elisp
+(progn
 (setq count 0)
-(defun count-syms (s)
-  (setq count (1+ count)))
-(mapatoms 'count-syms)
-count
+  (mapatoms (lambda (s) (setq count (1+ count))))
+count)
 (length obarray) ;; 1511
 #+END_SRC
-
 ** constructs of symbols
-A symbol is consisted of 4 parts: ~symbol-name~, ~symbol-value~, ~symbol-function~, ~symbol-plist~
+A symbol is consisted of 4 parts: =symbol-name=, =symbol-value=, =symbol-function=, =symbol-plist=
 #+BEGIN_SRC elisp
-(set (intern "abc" foo) "I'm abc")
+(set (intern "abc" foo) "I'm abc") ;; setq can ONLY used for `obarray'
+(vectorp foo) ;; t
 (symbol-value (intern "abc" foo))
 #+END_SRC
 #+BEGIN_SRC elisp
 (fset (intern "abc" foo) (symbol-function 'car)) ;; #<subr car>
 (funcall (intern "abc" foo) '(a . b)) ;; a
 #+END_SRC
+properties are all put in property-list, which is faster than association-list; however add elem at the header of association-list is quite fast, and property-list cannot delete a property instance.
 #+BEGIN_SRC elisp
 (put (intern "abc" foo) 'doc "this is abc")
+(put (intern "abc" foo) 'nonsense "its name")
 (get (intern "abc" foo) 'doc) ;; "this is abc"
-(symbol-plist (intern "abc" foo)) ;; (doc "this is abc")
+(symbol-plist (intern "abc" foo)) ;; (doc "this is abc" nonsense "its name")
+(symbol-plist (intern-soft"auto-mode-alist")) ;; (variable-documentation 1767350 risky-local-variable t)
 #+END_SRC
 #+BEGIN_SRC elisp
-(plist-get '(foo 4) 'foo) ;; 4
+;; some more property list operations
+(plist-get '(foo 4) 'foo) ;; 4; (foo 4) is just a property-list!
 (plist-get '(foo 4 bad) 'bar) ;;nil
 (setq my-plist '(foo 4 bar 3)) ;;(foo 4 bar 3)
 (setq my-plist (plist-put my-plist 'foo 69)) ;;(foo 69 bar 3)
 (setq my-plist (plist-put my-plist 'quax '(a))) ;; (foo 69 bar 3 quax (a))
 #+END_SRC
 ** Q&A
-*** Why ~obarray~ has more symbols that vector length?
-*** delete element according to keyword of some assoc list
-*** ~plist-get~, ~plist-put~ implementation #TODO
+*** TODO Why =obarray= has more symbols that vector length?
+*** TODO delete element according to keyword of some assoc list
+*** TODO =my-plist-get=, =my-plist-put= implementation
+#+BEGIN_SRC elisp
+(defun my-plist-get (plist prop)
+  (cadr (memq prop plist)))
+(my-plist-get '(foo 4 bar 9) 'bar)
+#+END_SRC
+
 * Evaluation Rules
-~form~ in elisp:
-- self-evaluated: number, string, vector, t, nil
-- symbol: nil \rightarrow void-variables
-- list form: categoried into 3 according to 1st element, i.e. function call, macro call, special form
-  #+BEGIN_SRC elisp
-  (symbol-function 'car) ;; #<subr car>
-  (fset 'first 'car) ;; car
-  (fset 'erste 'first) ;; first
-  (erste '(1 2 3)) ;; 1
-  #+END_SRC
-  [[file:../IMAGES/eval-rules.png]]
+=form= (elisp object to be evaluated) in elisp:
+** self-evaluated: number, string, vector, t, nil
+** symbol: nil \rightarrow void-variable
+** list form: 
+*** rule:
+If the first element of the list form is a =symbol=, it would look up its function value recursively(called *symbol function indirection*) until the function value is a /function call/, /macro call/,  /special form/ or /autoload object/; otherwise it would emit *invalid-function*
+*** categoried into 3 according to 1st element
+**** function call(lisp function object, byte-code object, primitive function): evaluate other elements in the list and take the result as the actual params, ~apply~ these params after
+**** TODO macro call, other element in the list would NOT be evaluated but expanded instead recursively until there would be no macro
+**** special form
+#+BEGIN_SRC elisp
+;; imatation of indirection function
+(symbol-function 'car) ;; #<subr car>
+(fset 'first 'car) ;; car
+(fset 'erste 'first) ;; first
+(erste '(1 2 3)) ;; 1
+#+END_SRC
+*** psedo code for evaluation in elisp
+#+BEGIN_SRC elisp
+(defun (EVAL expr)
+  (cond
+   ((numberp expr) expr)
+   ((stringp expr) expr)
+   ((arrayp expr) expr)
+   ((symbolp expr) (symbol-value expr))
+   ((SPECIAL-FORM-P (car expr)) (EVAL-SPECIAL-FORM expr))
+   ((fboundp (car expr)) (apply (car expr) (cdr exp)))
+   (t (error "unknown expression type : EVAL %s" exp))))
+#+END_SRC
 * Variables
+~max-specpdl-size~ is 1300 by default, which limits lisp variable bindings(~let~) and ~unwind-protect~
 ** buffer-local variables
-*** ~make-variable-buffer-local~, ~make-local-variable~
-*** ~with-current-buffer~, ~get-buffer~
-*** ~local-buffer-p~
-*** ~buffer-local-value~
+*** =make-variable-buffer-local=, =make-local-variable=
+*** =with-current-buffer=, =get-buffer=
+*** =local-buffer-p=
+*** =buffer-local-value=
 #+BEGIN_SRC elisp
 (setq foo "global foo")
 (make-local-variable 'foo)
@@ -521,27 +591,60 @@ foo
 (local-variable-p 'foo (get-buffer "*Messages*"));; nil
 (with-current-buffer "*Messages*"
   (buffer-local-value 'foo (get-buffer (current-buffer))))
+(default-value 'foo)
 #+END_SRC
-** scope of variables
-variables: global variables, buffer-local variables, let-binded local variables, function argument list variables
 #+BEGIN_SRC elisp
+(kill-local-variable 'foo)
+(setq foo "I'm local variable!")
+(let ((foo "I'm local variable!"))
+  (set (make-local-variable 'foo) "I'm buffer-local variable!")
+  (setq-default foo "This is a variable!")
+  (message foo))
+(message foo)
+#+END_SRC
+** scope of variables(DYNAMIC BINDINGS)
+*** global variables(removed only when quiting emacs or =unintern= from =obarray=)
+*** buffer-local variables(removed when killing buffer or =kill-local-variable=)
+*** let-binded local variables(similar with local/automatic variable in C, dynamic extent)
+*** function argument list variables
+#+BEGIN_SRC elisp
+;; user cannot get x binded in binder
 (defun binder(x) (foo 5))
 (defun user () (list x))
 (defun foo (ignore) (user))
-(binder 10)
+(binder 10) ;; (10)
 #+END_SRC
+#+BEGIN_SRC elisp
+;; TODO
+(progn
+(defun make-add (n) (function (lambda (m) (+ n m))))      ; Return a function.
+(fset 'add2 (make-add 2)) ; Define function `add2' with `(make-add 2)'.
+(add2 4)         ; Try to add 2 to 4.
+)
+#+END_SRC
+
 ** other functions
-~boundp~, ~default-boundp~, ~makeunbound~, ~kill-local-variable~, ~kill-all-local-variables~
+=boundp=, =default-boundp=, =makeunbound=, =kill-local-variable=, =kill-all-local-variables=
+#+BEGIN_SRC elisp
+(setq foo "local foo")
+foo                                     ; => "local foo"
+(boundp 'foo)                           ; => t
+(default-boundp 'foo)                   ; => t
+(makunbound 'foo)                       ; => foo
+foo                                     ; This will signal an error
+(default-boundp 'foo)                   ; => t
+(kill-local-variable 'foo)              ; => foo
+#+END_SRC
 ** naming variables
-*** ~-hook~
-*** ~-function~ value is function
-*** ~-functions~ value is function list
-*** ~-flag~ nil/non-nil
-*** ~-predicate~ judge nil or non-nil
-*** ~-program/-command~ some program/shell command
-*** ~-form~ form
-*** ~-forms~ form list
-*** ~-map~ key maps
+*** =-hook=
+*** =-function= value is function
+*** =-functions= value is function list
+*** =-flag= nil/non-nil
+*** =-predicate= judge nil or non-nil
+*** =-program/-command= some program/shell command
+*** =-form= form
+*** =-forms= form list
+*** =-map= key maps
 * Functions and Commands
 ** syntax
 #+BEGIN_SRC elisp
@@ -560,7 +663,7 @@ variables: global variables, buffer-local variables, let-binded local variables,
 
 ** docstring
 ** function call
-~funcall~, ~apply~
+=funcall=, =apply=
 #+BEGIN_SRC elisp
 (funcall 'list 'x '(y) '(z)) ;; (x (y) (z))
 (apply 'list 'x '(y) '(z))  ;; (x (y) z)
@@ -578,7 +681,7 @@ variables: global variables, buffer-local variables, let-binded local variables,
 #+END_SRC
 #+BEGIN_SRC elisp
 `(a list of  ,(+ 2 3) elements) ;; (a list of 5 elements)
-'(a list of  ,(+ 2 3) elements) ;; (a list of \, (+ 2 3) elements) 
+'(a list of  ,(+ 2 3) elements) ;; (a list of \, (+ 2 3) elements)
 (setq some-list '(2 3))
 '(1 ,some-list 4 ,@some-list) ;;(1 (\, some-list) 4 (\,@ some-list))
 `(1 ,some-list 4 ,@some-list) ;;(1 (2 3) 4 2 3)
@@ -603,7 +706,15 @@ variables: global variables, buffer-local variables, let-binded local variables,
   (funcall mode))
 #+END_SRC
 
-* Regular Expression
+* Regulation Expressions
+** _char-table_ and _standard-synatax-table_
+#+BEGIN_SRC elisp
+(regexp-opt '("foobar" "foobaz" "foo")) ;;"foo\\(?:ba[rz]\\)?" 
+(regexp-quote "f*") ;; "f\\*"
+(describe-syntax)
+(describe-categories)
+#+END_SRC
+
 * Buffer
 ** buffer-name
 ** current-buffer
@@ -625,15 +736,20 @@ variables: global variables, buffer-local variables, let-binded local variables,
   (set-buffer "*Messages*"))
 #+END_SRC
 
-** ~get-buffer-create~, ~generate-new-buffer~, ~kill-buffer~, ~kill-buffer-query-function~, ~kill-buffer-hook~, ~buffer-live-p~, ~buffer-list~
+** =get-buffer-create=, =generate-new-buffer=, =kill-buffer= with =kill-buffer-query-function=, =kill-buffer-hook=, =buffer-live-p=, =buffer-list=
 ** mark and position
 #+BEGIN_SRC elisp
-(setq foo (make-marker))
+(setq foo (make-marker)) ;;#<marker in no buffer>
 (set-marker foo (point))
-
 (point-marker)
 (copy-marker 20)
 (copy-marker foo)
+(marker-position foo) ;; 22304
+(marker-buffer foo)
+(mark) ;; current mark
+(princ mark-ring)
+(push-mark)
+(pop-mark)
 #+END_SRC
 #+BEGIN_SRC elisp
 (goto-char (point-min))
@@ -643,19 +759,40 @@ variables: global variables, buffer-local variables, let-binded local variables,
 (forward-word -2)
 (backward-word 2)
 #+END_SRC
-
-
-
-** ~buffer-string~, ~buffer-substring~, ~char-before~, ~char-after~
+** =buffer-string=, =buffer-substring=, =char-before=, =char-after=
 ** modify buffer contents:
-- ~delete-char~, ~delete-backward-char~, ~delete-region~
-- ~re-search-forward~, ~re-search-backward~
-- ~replace-match~
+- =delete-char=, =delete-backward-char=, =delete-region=
+- =re-search-forward=, =re-search-backward=
+- =replace-match=
 ** Q&A
 *** show-region
-*** makr-whole-sexp
+#+BEGIN_SRC elisp
+(defun show-region (beg end)
+  (interactive
+   (if (or (null transient-mark-mode) mark-active)
+       (list (region-beginning) (region-end))
+     (list (point-min) (point-max))))
+  (message "region start from %d to %d" beg end))
+#+END_SRC
+*** mark-whole-sexp
+#+BEGIN_SRC elisp
+(defun mark-whole-sexp ()
+  (interactive)
+  (let ((bound (bounds-of-thing-at-point 'sexp)))
+    (if bound
+        (progn
+          (goto-char (car bound))
+          (set-mark (point))
+          (goto-char (cdr bound)))
+      (message "no sexp found at point"))))
+#+END_SRC
+
 *** oowrite-table-convert
 * Window
+** differences with _frame_
+*** WINDOW: display buffer on screen
+*** FRAME: the part for Emacs using screen
+*** Emacs has >=1 frames, one frame has >= 1 windows
 ** split window
 #+BEGIN_SRC elisp
 (selected-window)
@@ -685,7 +822,7 @@ variables: global variables, buffer-local variables, let-binded local variables,
   ;; (message "back to window: %S" foo)
   )
 #+END_SRC
-~save-selected-window~, ~with-selected-window~
+=save-selected-window=, =with-selected-window=
 #+BEGIN_SRC elisp
 (save-selected-window
   (select-window (next-window))
@@ -718,7 +855,7 @@ variables: global variables, buffer-local variables, let-binded local variables,
 #+END_SRC
 
 
-** change display region: ~set-window-start~, ~window-start~, ~pos-visible-window-p~
+** change display region: =set-window-start=, =window-start=, =pos-visible-window-p=
 ** Q&A
 *** save window location info
 *** improve save window function
@@ -727,19 +864,19 @@ variables: global variables, buffer-local variables, let-binded local variables,
 ** read/write
 #+BEGIN_SRC elisp
 (with-current-buffer
-    (find-file-noselect "~/.vimrc")
+    (find-file-noselect "=/.vimrc")
   buffer-file-name)
-(find-buffer-visiting "~/.vimrc")
-(get-file-buffer "~/.emacs.d")
-(get-file-buffer "~/.recentf")
+(find-buffer-visiting "=/.vimrc")
+(get-file-buffer "=/.emacs.d")
+(get-file-buffer "=/.recentf")
 #+END_SRC
-~insert-file-contents~, ~write-region~
+=insert-file-contents=, =write-region=
 ** file information
 #+BEGIN_SRC elisp
-(setq vimrc-file "~/.vimrc")
+(setq vimrc-file "=/.vimrc")
 (file-exists-p vimrc-file)
 (file-readable-p vimrc-file)
-(file-executable-p "~/.emacs.d") ;; t
+(file-executable-p "=/.emacs.d") ;; t
 (format "%o" (file-modes vimrc-file)) ;; 664
 (file-regular-p vimrc-file)
 (file-directory-p vimrc-file)
@@ -748,22 +885,21 @@ variables: global variables, buffer-local variables, let-binded local variables,
 #+END_SRC
 
 ** modify file information
-~rename-file~, ~copy-file~, ~delete-file~, ~make-directory~
-~set-file-times~, ~set-file-modes~
+=rename-file=, =copy-file=, =delete-file=, =make-directory=
+=set-file-times=, =set-file-modes=
 ** filename operations
 #+BEGIN_SRC elisp
 (file-name-base vimrc-file) ;; ".vimrc"
-(file-name-directory vimrc-file) ;; "~/"
+(file-name-directory vimrc-file) ;; "=/"
 (file-name-nondirectory (file-truename vimrc-file));; "_vimrc"
-(file-name-sans-extension "~/non-exist.tar.gz") ;; "~/non-exist.tar"
-(file-name-sans-versions "~/non-exist.tar.gz~~") ;; "~/non-exist.tar.gz~"
-(file-name-absolute-p "~chx") ;; t
-(expand-file-name "~/non-exist.tar")
+(file-name-sans-extension "=/non-exist.tar.gz") ;; "=/non-exist.tar"
+(file-name-sans-versions "=/non-exist.tar.gz==") ;; "=/non-exist.tar.gz="
+(file-name-absolute-p "=chx") ;; t
+(expand-file-name "=/non-exist.tar")
 (expand-file-name "non-exist.tar") ;; append current-directory with file name
-(file-relative-name "~/.emacs.d/non-exist.tar")
-(file-name-as-directory "~/non-exist.tar")
+(file-relative-name "=/.emacs.d/non-exist.tar")
+(file-name-as-directory "=/non-exist.tar")
 #+END_SRC
-
 
 ** make temp files
 #+BEGIN_SRC elisp
@@ -774,28 +910,77 @@ variables: global variables, buffer-local variables, let-binded local variables,
 ** read directory files
 ** handle
 #+BEGIN_SRC text
-‘access-file’, ‘add-name-to-file’, ‘byte-compiler-base-file-name’,
-‘copy-file’, ‘delete-directory’, ‘delete-file’,
-‘diff-latest-backup-file’, ‘directory-file-name’, ‘directory-files’,
-‘directory-files-and-attributes’, ‘dired-call-process’,
-‘dired-compress-file’, ‘dired-uncache’,
-‘expand-file-name’, ‘file-accessible-directory-p’, ‘file-attributes’,
-‘file-name-all-completions’, ‘file-name-as-directory’,
-‘file-name-completion’, ‘file-name-directory’, ‘file-name-nondirectory’,
-‘file-name-sans-versions’, ‘file-newer-than-file-p’,
-‘file-ownership-preserved-p’, ‘file-readable-p’, ‘file-regular-p’,
-‘file-symlink-p’, ‘file-truename’, ‘file-writable-p’,
-‘find-backup-file-name’, ‘find-file-noselect’,
-‘get-file-buffer’, ‘insert-directory’, ‘insert-file-contents’,
-‘load’, ‘make-auto-save-file-name’, ‘make-directory’,
-‘make-directory-internal’, ‘make-symbolic-link’,
-‘rename-file’, ‘set-file-modes’, ‘set-file-times’,
-‘set-visited-file-modtime’, ‘shell-command’, ‘substitute-in-file-name’,
-‘unhandled-file-name-directory’, ‘vc-registered’,
-‘verify-visited-file-modtime’,
-‘write-region’.
+`access-file', `add-name-to-file', `byte-compiler-base-file-name',
+`copy-file', `delete-directory', `delete-file',
+`diff-latest-backup-file', `directory-file-name', `directory-files',
+`directory-files-and-attributes', `dired-call-process',
+`dired-compress-file', `dired-uncache',
+`expand-file-name', `file-accessible-directory-p', `file-attributes',
+`file-name-all-completions', `file-name-as-directory',
+`file-name-completion', `file-name-directory', `file-name-nondirectory',
+`file-name-sans-versions', `file-newer-than-file-p',
+`file-ownership-preserved-p', `file-readable-p', `file-regular-p',
+`file-symlink-p', `file-truename', `file-writable-p',
+`find-backup-file-name', `find-file-noselect',
+`get-file-buffer', `insert-directory', `insert-file-contents',
+`load', `make-auto-save-file-name', `make-directory',
+`make-directory-internal', `make-symbolic-link',
+`rename-file', `set-file-modes', `set-file-times',
+`set-visited-file-modtime', `shell-command', `substitute-in-file-name',
+`unhandled-file-name-directory', `vc-registered',
+`verify-visited-file-modtime',
+`write-region'.
 #+END_SRC
 ** Q&A
-*** extract header file
-*** emulate ~chmod~
-*** my-directory-files
+*** TODO extract header file
+*** TODO emulate =chmod=
+*** TODO my-directory-files
+* Text
+** Get Text Props
+#+BEGIN_SRC elisp
+(setq foo (concat "abc"
+                  (propertize "cde" 'face 'bold))) ; => #("abccde" 3 6 (face bold))
+(get-text-property 3 'face foo)                    ; => bold
+(save-excursion
+  (goto-char (point-min))
+  (insert foo))
+(get-text-property 4 'face)                        ; => bold
+#+END_SRC
+** Change Text Props
+#+BEGIN_SRC elisp
+(let ((str "abc"))
+  (put-text-property 0 3 'face 'bold str)
+  str)                                  ; => #("abc" 0 3 (face bold))
+#+END_SRC
+#+BEGIN_SRC elisp
+(setq foo (propertize "abcdef" 'face 'bold
+                      'pointer 'hand))
+;; => #("abcdef" 0 6 (pointer hand face bold))
+(set-text-properties 0 2 nil foo)       ; => t
+foo   ; => #("abcdef" 2 6 (pointer hand face bold))
+(remove-text-properties 2 4 '(face nil) foo) ; => t
+foo   ; => #("abcdef" 2 4 (pointer hand) 4 6 (pointer hand face bold))
+(remove-list-of-text-properties 4 6 '(face nil pointer nil) foo) ; => t
+foo   ; => #("abcdef" 2 4 (pointer hand))
+#+END_SRC
+** View Props inside Text
+#+BEGIN_SRC elisp
+(setq foo (concat "ab"
+                  (propertize "cd" 'face 'bold)
+                  (propertize "ef" 'pointer 'hand)))
+;; => #("abcdef" 2 4 (face bold) 4 6 (pointer hand))
+(next-property-change 1 foo)                  ; => 2
+(next-single-property-change 1 'pointer foo)  ; => 4
+(previous-property-change 6 foo)              ; => 4
+(previous-single-property-change 6 'face foo) ; => 4
+#+END_SRC
+#+BEGIN_SRC elisp
+(text-property-any 0 6 'face 'bold foo)          ; => 2
+(text-property-any 0 6 'face 'underline foo)     ; => nil
+(text-property-not-all 2 6 'face 'bold foo)      ; => 4
+(text-property-not-all 2 6 'face 'underline foo) ; => 2
+#+END_SRC
+** Q&A
+*** TODO highlight source code
+
+
