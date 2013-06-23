@@ -1,0 +1,63 @@
+#+BEGIN_SRC elisp
+(setq lexical-binding nil)
+(let ((x '(a))) (add-to-list 'x 'b) x); -> (b a)
+(setq lexical-binding t)
+(let ((x '(a))) (add-to-list 'x 'b) x) ; -> Lisp error: (void-variable x)
+#+END_SRC
+
+#+BEGIN_SRC elisp
+(setq lexical-binding nil)
+(defun foo (var) (set var 'b))
+(let ((x 'a)) (foo 'x) x) ; -> b
+(setq lexical-binding t)
+(let ((x 'a)) (foo 'x) x)  ; -> a (also does global (set 'x 'b))
+#+END_SRC
+
+#+BEGIN_SRC c
+char x='z';
+void foo (char* var) {
+  *var='b';
+}
+
+int main () {
+  {
+    char x='a';
+    foo(&x);
+    printf ("Local x: %c, ", x);
+  }
+  printf ("Global x: %c\n", x);
+}
+// -> "Local x: b, Global x: z"
+#+END_SRC
+
+#+BEGIN_SRC elisp
+(add-to-list 'o 'b)
+(add-to-list (intern (substring "ouch" 0 1)) 'b)
+#+END_SRC
+
+#+BEGIN_SRC elisp
+(setq lexical-binding t)
+(let ((x '(a))) (add-to-list &x 'b) x) -> (b a)
+#+END_SRC
+
+#+BEGIN_SRC elisp
+   (let ((funs (mapcar (lambda (x) (lambda (y) (+ x y)) '(1 2 3))))
+     (mapcar (lambda (f) (funcall f 3)) funs))
+#+END_SRC
+
+#+BEGIN_SRC elisp
+(setq lexical-binding nil)
+(let ((l (list 1 2 3)))
+  (add-to-list 'l 0))
+#+END_SRC
+**  the function list is called with arguments 1 2 and 3.
+**  it returns a list: (1 2 3).
+**  let creates a variable, it saves any dynamic binding the symbol list may have, and it names the variable with the symbol list, and it binds it (dynamically, at this time 3.) to the list (1 2 3).
+**  (quote l)  is evaluated.
+**  it returns the symbol list.
+**  0 is evaluated.
+**  it returns 0
+**  the function add-to-list is called with as arguments, the symbol ~l~ and the integer 0.
+**  the function changes the dynamic binding of the symbol list. remember at this time, while the function add-to-list is being called, there symbol list is dynamically bound to the list (1 2 3), since the time 3.
+**  it returns, and the dynamic binding to the variable ~l~ has been changed.
+**  let destroys the dynamic binding of list, and destroys the variable named list.  Whatever dynamic binding list had before is restored.

@@ -1,4 +1,5 @@
-abccde#+OPTIONS: toc:1
+#+OPTIONS: toc:1
+#+STARTUP: hideblocks
 #+TOC: listings
 #+TITLE: An Instruction to Emacs Lisp
 
