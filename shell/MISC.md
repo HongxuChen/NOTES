@@ -152,3 +152,10 @@ wkhtmltopdf my_resume.html my_resume.pdf
 # fails when the last changed is a directory
 watch 'ls -tr1 | tail -n1 | xargs tail'
 ```
+
+### count LOC of a directory
+```
+find . -name '*.cc' | xargs wc -l
+# works on names with space
+( find ./ -name '*.[h|c|cc|cpp|php]' -print0 | xargs -0 cat ) | wc -l
+```

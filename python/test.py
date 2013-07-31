@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import llvm.core as lc
 import llvm.passes as lp
-import llvm.ee as le
+# import llvm.ee as le
 
 # basic objects
 void_t = lc.Type.int()

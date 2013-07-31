@@ -1,5 +1,5 @@
 * Strings
-  #+BEGIN_SRC elisp
+  #+BEGIN_SRC emacs-lisp
   (zerop (string-match "" "")) ;; O(n)  => t
   (string-equal "" "") ;; => t
   (equal "" "") ;; => t
@@ -11,14 +11,14 @@
   #+END_SRC
 ** Strings vs buffer text
 ** Substrings
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (substring "abcdefg" 0 3)
 (substring "abcdefg" -3 -1)
 (substring "abcdefg" -3)
 (with-temp-buffer (insert "abcdefg") (buffer-substring 2 4))
 #+END_SRC
 ** starts-with and ends-with
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defun string/ends-with (s ending)
   "return non-nil if string S ends with ENDING"
   (let ((elength (length ending)))
@@ -32,7 +32,7 @@
 
 #+END_SRC
 ** Processing characters
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (reverse (string-to-list "foo"))
 (apply #'string (reverse (string-to-list "foo")))
 
@@ -55,7 +55,7 @@
 (concat (nreverse (append "1234" nil)))
 #+END_SRC
 *** string modification
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (capitalize "foo bar") ;; Foo Bar
 (capitalize "speakerIt") ;; Speakerit
 (upcase-initials "speakerIt") ;; SpeakerIt
@@ -75,13 +75,13 @@
                   (goto-char (point-min)) (capitalize-word 1) (buffer-string))
 #+END_SRC
 *** strings are arrays
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defvar my-string "foo")
 (aref my-string 0) ;; 102 ?f
 (aset my-string 0 ?b)
 my-string ;; boo
 #+END_SRC
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (with-temp-buffer
   (insert "abcdefg")
   (goto-char (point-min))
@@ -90,13 +90,13 @@ my-string ;; boo
   (point)) ;; 2
 #+END_SRC
 ** Trim whitespace
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (setq test-str "abcdefg\t")
 ;; string-match-p can only be used for test
 (when (string-match "[ \t*$]" test-str)
   (message (concat "[" (replace-match "" nil nil test-str) "]")))
 #+END_SRC
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defun chomp (str)
   "chomping leading and tailing whitespace from STR"
   (while (string-match "\\`\n+\\|^\\s-+\\|\\s-+$\\|\n+\\'" str)
@@ -104,11 +104,11 @@ my-string ;; boo
   str)
 #+END_SRC
 ** Splitting strings
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (mapconcat 'identity '("" "home" "hongxu" ".emacs.d") "/")
 #+END_SRC
 ** Serialization
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (length (read (prin1-to-string (make-list 100000 '(x)))))
 (read (prin1-to-string (current-buffer))) ;; error
 (read (prin1-to-string (make-hash-table))) ;; error before emacs23
@@ -121,11 +121,11 @@ print, princ, prin1; format, message; format-time-string
 Most of the kill commands are primarily for interactive use […] When you need to delete text for internal purposes within a Lisp function, you should normally use deletion functions, so as not to disturb the kill ring contents."
 #+END_QUOTE
 ** Delete region
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (delete-region (region-beginning) (region-end))
 #+END_SRC
 ** Delete line
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (let ((beg (point)))
       (forward-line 1)
       (forward-char -1)
@@ -140,7 +140,7 @@ Most of the kill commands are primarily for interactive use […] When you need 
 (delete-region (point) (line-end-position))
 #+END_SRC
 ** Delete line backwards
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (let ((beg (point)))
   (forward-line 0)
   (delete-region beg (point)))
@@ -149,7 +149,7 @@ Most of the kill commands are primarily for interactive use […] When you need 
 (delete-region (line-beginning-position) (point))
 #+END_SRC
 ** Delete line to next line
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 ;; `C-1 C-k`
 (let ((beg (point)))
   (forward-line 1)
@@ -157,7 +157,7 @@ Most of the kill commands are primarily for interactive use […] When you need 
   ))
 #+END_SRC
 ** Delete whole line
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 ;; kill-whole-line `C-S-backspace`
 (let ((beg (progn (forward-line 0) (point))))
   (forward-line)
@@ -186,7 +186,7 @@ Most of the kill commands are primarily for interactive use […] When you need 
 
 ** Delete word
 ** Delete sentence
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (delete-region (point) (forward-sentence) (point))
 (delete-region (point) (save-excursion (forward-sentence) (point)))
 (delete-region (point) (progn (forward-sentence) (point)))
@@ -195,7 +195,7 @@ Most of the kill commands are primarily for interactive use […] When you need 
 
 * Numbers
 ** whether a string represents a number
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defun string-interager-p (string)
   (if (string-match "\\`[-+]?[0-9]+\\'" string) t nil))
 
@@ -206,7 +206,7 @@ Most of the kill commands are primarily for interactive use […] When you need 
 (string-float-p "3.141592653589793")
 #+END_SRC
 ** String to number
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 ;; FIXME not right
 (defun decimal-number (string)
   (let ((n (string-to-number string)))
@@ -218,11 +218,11 @@ Most of the kill commands are primarily for interactive use […] When you need 
 (decimal-number " 3.1415926 ")
 #+END_SRC
 ** Random numbers
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (+ (random 6) 1)
 #+END_SRC
 ** Commas in numbers
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (defun group-number (num &optional size char)
   "Format NUM as string grouped to SIZE with CHAR.
 default value: SIZE 3, CHAR ,"
@@ -248,8 +248,7 @@ default value: SIZE 3, CHAR ,"
 ** Increment numbers
 See [[http://www.emacswiki.org/emacs/IncrementNumber][EmacsWiki: Increment Number]]
 ** Dates and times
-*** Todays's dates
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
 (message (format-time-string "now is %Y-%m-%d %T"))
 (let ((time (date-to-time "Tue, 27-Sep-83 12:35:59 EST")))
   (set-time-zone-rule t)
@@ -274,10 +273,186 @@ See [[http://www.emacswiki.org/emacs/IncrementNumber][EmacsWiki: Increment Numbe
     (- days2 days1))
 
 (time-to-day-in-year (current-time))
-
-
 #+END_SRC
 
+* Pattern Maching
+** search and replace
+#+BEGIN_SRC emacs-lisp
+;; find
+(with-temp-buffer
+  (insert "fight foo for food")
+  (goto-char (point-min))
+  (re-search-forward "foo*")
+  (point))
+(with-temp-buffer
+  (insert "fight foo for food!")
+  (goto-char (point-min))
+  (looking-at "fighd*"))
+;; replace
+(replace-regexp-in-string "foo*" "fu" "fight foo for food")
+(with-temp-buffer
+    (insert "fight foo for food")
+  (goto-char (point-min))
+  (while (re-search-forward "foo*" nil t)
+    (replace-match "fu"))
+  (buffer-string))
+;; seach using `member' and `memq'
+(let ((re "\\wo\\b")
+          (words '("fight" "foo" "for" "food")))
+      (consp (memq t (mapcar (lambda (s) (numberp (string-match re s))) words))))
+#+END_SRC
+** Finding all the strings that match
+#+BEGIN_SRC emacs-lisp
+(defun match-string-all (&optional string)
+  (let ((n-matches (1- (/ (length (match-data)) 2))))
+    (mapcar (lambda (i) (match-string i string))
+            (number-sequence 0 n-matches))))
+(let ((str "time help"))
+  (string-match "time \\([A-Za-z]+\\)$" str)
+  (match-string-all str))
+#+END_SRC
+* Code Comments
+#+BEGIN_SRC emacs-lisp
+;; (comment-beginning)
+;; (comment-search-forward (line-end-position) t) ;;
+#+END_SRC
+* Sequences
+#+BEGIN_TEXT 
+    _____________________________________________
+    |                                             |
+    |          Sequence                           |
+    |  ______   ________________________________  |
+    | |      | |                                | |
+    | | List | |             Array              | |
+    | |      | |    ________       ________     | |
+    | |______| |   |        |     |        |    | |
+    |          |   | Vector |     | String |    | |
+    |          |   |________|     |________|    | |
+    |          |  ____________   _____________  | |
+    |          | |            | |             | | |
+    |          | | Char-table | | Bool-vector | | |
+    |          | |____________| |_____________| | |
+    |          |________________________________| |
+    |_____________________________________________|
+#+END_TEXT
+* Lists
+#+BEGIN_SRC emacs-lisp
+(let ((result ))
+  (dolist (word '("fight" "foo" "for" "food"))
+    (when (string-match-p "o" word) (push word result)))
+  (nreverse result))
+(let* ((orig '((1 2) (3 4)))
+       (copy (copy-sequence orig)))
+  (setcdr copy '((5 6)))
+  (list orig copy)) ;; (((1 2) (3 4)) ((1 2) (5 6)))
+(let* ((orig '((1 2) (3 4)))
+       (copy (copy-sequence orig)))
+  (setcdr (cadr copy) '(0))
+  (list orig copy)) ;; (((1 2) (3 0)) ((1 2) (3 0)))
+(let* ((orig '((1 2) (3 4)))
+       (copy (copy-tree orig)))
+  (setcdr (cadr copy) '(0))
+  (list orig copy)) ;; (((1 2) (3 4)) ((1 2) (3 0)))
+;; filter
+(defun my-filter (condp lst)
+  (delq nil
+        (mapcar (lambda (x) (and (funcall condp x) x)) lst)))
+(my-filter 'numberp '(1 nil a 4 3 2 1))
+;; cl-seq: remove-if, remove-if-not
+(let ((num-list '(1 'a 2 "nil" 3 nil 4)))
+  (remove-if-not 'numberp num-list))
+;;quicksort
+(defun quicksort (lst)
+  (if (null lst) nil
+    (let* ((spl (car lst))
+           (rst (cdr lst))
+           (smalp (lambda (x) (< x spl))))
+      (append (quicksort (remove-if-not smalp rst))
+              (list spl)
+              (quicksort (remove-if smalp rst))))))
+(quicksort '(5 7 1 3 -9 8 7 -4 0))
+;; keep-when
+(defun keep-when (pred seq)
+  (let ((del (make-symbol "del")))
+    (remove del (mapcar (lambda (el) (if  (funcall pred el) el del)) seq))))
+(keep-when 'atom '(1 2 3 (4 5) 6 nil t foo))
+;; transpose
+((lambda (&rest args)
+    (mapcar (lambda (n)
+              (delq nil (mapcar (lambda (arg) (nth n arg)) args)))
+            (number-sequence 0 (1- (apply 'max (mapcar 'length args))))))
+  '(1 2 3) '(a b c) '(A B C)) ;;((1 a A) (2 b B) (3 c C))
+((lambda (&rest args)
+     (apply (function mapcar*) (function list) args))
+   '(1 2 3) '(a b c) '(A B C)) ;; ((1 a A) (2 b B) (3 c C))
+#+END_SRC
+
+
+* Association Lists
+#+BEGIN_SRC emacs-lisp
+(assoc "2" '(("2" . 2) ("1" . 1) ("2") ("3" . 3)))
+(assq 'fundamental-mode
+      (mapcar
+       (lambda (b)
+         (cons (buffer-local-value 'major-mode b) b))
+       (buffer-list)))
+'((8 . nil) (3 . nil) (1 . nil) (7 . nil) (3 . nil) (6 . nil) (9 . nil))
+(assq 3 (mapcar 'list '(8 3 1 7 3 6 9)))
+#+END_SRC
+* Vectors
+#+BEGIN_SRC emacs-lisp
+(let ((words ["fight" "foo" "for" "food"]))
+  (when (string= "fight" (aref words 0))
+    (aset words 0 "bar"))
+  words)
+(mapcar 'identity [1 2 3 4])
+(append [1 2 3 4] nil)
+#+END_SRC
+* Hash Tables
+#+BEGIN_SRC emacs-lisp
+(let ((nick-table (make-hash-table :test 'equal))
+      nicks)
+  (puthash "chx" "hongxu chen" nick-table)
+  (puthash "phd" "Hongxu Chen" nick-table)
+  (puthash "Chx" "Hongxu Chen" nick-table)
+  (maphash (lambda (nick real-name) (setq nicks (cons nick nicks))) nick-table)
+  (mapcar (lambda (nick) (concat nick "=>" (gethash nick nick-table)))
+          (sort nicks 'string<)))
+#+END_SRC
+* Files
+** Read
+#+BEGIN_SRC emacs-lisp
+find-file-noselect
+insert-file-contents
+insert-file-contents-literally
+#+END_SRC
+** Write
+** I/O
+#+BEGIN_SRC emacs-lisp
+(unless (file-locked-p (buffer-file-name))
+  (lock-buffer))
+#+END_SRC
+** Stat
+#+BEGIN_SRC emacs-lisp
+(let* ((attrs (file-attributes (buffer-file-name)))
+       (atime (nth 4 attrs))
+       (mtime (nth 5 attrs))
+       (ctime (nth 6 attrs)))
+  (concat "atime:" (format-time-string "%Y-%m-%d %T" atime) "\n"
+"mtime:" (format-time-string "%Y-%m-%d %T" mtime) "\n"
+"ctime:" (format-time-string "%Y-%m-%d %T" ctime)))
+#+END_SRC
+* Directories
+#+BEGIN_SRC emacs-lisp
+(directory-files "~/")
+(let ((default-directory "~/"))
+  (file-expand-wildcards "?emacs*"))
+(let ((default-directory "~/"))
+  (sort
+   (directory-files default-directory (not 'absolute) nil 'nosort)
+   (lambda (a b)
+     (time-less-p (nth 5 (file-attributes a)) (nth 5 (file-attributes b))))))
+#+END_SRC
 
 
 

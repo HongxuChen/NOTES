@@ -44,3 +44,11 @@
 * 2013-06-08
 ** scribble something down
 ** I kid you not.
+* 2013-06-26
+** equals to or more than
+* 2013-06-28
+** You've got me there
+* 2013-06-29
+** YMMV:your mileage may vary
+* 2013-07-28
+** Much ink has been spilled discussing NULL.
