@@ -4,15 +4,17 @@ Created on Oct 7, 2012
 @author: nonoob
 '''
 
-import random,socket,sys
+import random
+import socket
+import sys
 
-s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 MAX = 65535
 SERVER_PORT = 1062
 CLIENT_PORT = 43221
 
-if 2 <= len(sys.argv) <=3 and sys.argv[1] == 'server':
+if ((2 <= len(sys.argv) <=3) and (sys.argv[1] == 'server')):
     interface = sys.argv[2] if len(sys.argv) > 2 else ''
     s.bind((interface,SERVER_PORT))
     print '[server] Listening at',s.getsockname()
