@@ -14,13 +14,11 @@ int main(int argc, char *argv[]) {
   }
 
   for (int i = 0; i < argc - 1; ++i) {
-    if (args[i] == args[i+1]){
+    if (args[i] == args[i + 1]) {
       std::cout << "check" << std::endl;
-    }
-    else if(args[i] == "Hey!"){
+    } else if (args[i] == "Hey!") {
       std::cout << "Huh?" << std::endl;
-    }
-    else {
+    } else {
       std::cout << "Oops!" << std::endl;
     }
   }

@@ -159,3 +159,24 @@ find . -name '*.cc' | xargs wc -l
 # works on names with space
 ( find ./ -name '*.[h|c|cc|cpp|php]' -print0 | xargs -0 cat ) | wc -l
 ```
+
+###/etc/sudoers
+
+```bash
+user_name ALL=NOPASSWD:ALL #not in admin group
+```
+
+### progress
+
+```bash
+MAX=20
+
+for (( i = 0; i < $MAX; i++ )); do
+  SPC=$(($MAX-$i))
+  printf "=%${i}s"|tr " " "="
+  printf ">%${SPC}s%3s|"
+  printf $(bc <<< "scale=2;100*$i/$MAX")
+  printf "\r"
+  sleep 0.1
+done
+```

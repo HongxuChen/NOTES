@@ -40,20 +40,15 @@ if(b<5){
 assert(x+y+z!=3);
 #+END_SRC
 
-| path condition | pass | x+y+z |
-|----------------+------+-------|
-| \alpha\wedge(\beta<5)        | Y    |  0/1  |
-| \alpha\wedge(\beta\ge5)        | Y    |  0    |
-| \not\alpha\wedge(\beta<5)\wedge\gamma     | N    |  3    |
-| \not\alpha\wedge(\beta<5)\wedge\not\gamma    | Y    |  2    |
-| \not\alpha\wedge(\beta\ge5)       | Y    |  0    |
+| path condition                            | pass | x+y+z |
+|-------------------------------------------+------+-------|
+| \alpha\wedge(\beta<5)                     | Y    |   0/1 |
+| \alpha\wedge(\beta\ge5)                   | Y    |     0 |
+| \not\alpha\wedge(\beta<5)\wedge\gamma     | N    |     3 |
+| \not\alpha\wedge(\beta<5)\wedge\not\gamma | Y    |     2 |
+| \not\alpha\wedge(\beta\ge5)               | Y    |     0 |
 
 * Why Is This Possible?
 ** SAT,SMT(Satisfiability Modulo Theories,SAT++)
 *** Z3, STP, Yices
 ** Recent success: bug finding
-
-
-
-
-

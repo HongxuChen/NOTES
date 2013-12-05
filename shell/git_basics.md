@@ -14,7 +14,7 @@ Useful commands:`git status`,`gitk`,`git help`
 
 1. remove cached files
 ```bash
-git commit -m "commit info"
+git add .
 git ls-files | xargs git rm --cached
 ```
 

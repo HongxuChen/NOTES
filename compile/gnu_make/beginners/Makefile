@@ -1,5 +1,3 @@
-# -*- mode: makefile-gmake; compile-command: "make -f Makefile2"; -*-
-
 CC = gcc
 OPTION = -O2 -g -Wall
 INCLUDES = -I.

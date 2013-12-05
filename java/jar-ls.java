@@ -33,9 +33,9 @@ public class JarLs {
       } catch(Exception ex){
         ex.printStackTrace();
       }
-    } 
+    }
   }
-  
+
   public static void main(String[] args) {
     File dir = new File(".");
     if(args.length == 1){
