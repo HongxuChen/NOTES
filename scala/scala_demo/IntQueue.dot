@@ -1,55 +1,55 @@
 digraph G {
-    graph [ranksep=0,fontsize=30 labelloc="t" label="" splines=true overlap=false];
-    node [shape=record];
-    subgraph Main {
-  style=filled;
-	color=lightgrey;
-	node [shape=box3d,style=filled];
-        arrayBuffer[label="arrayBuffer.apply[Int](elems:Int*)\n ArrayBuffer"]
-        queue1[label="queue$1.this(ArrayBuffer)\n BasicIntQueue"]
-        queue1_put[label="queue$1.put()\n BasicIntQueue"]
-        print1[color=black,fillcolor=lightblue,style=filled,label="scala.this.Predef.println(queue$1.toString()"]
-        queue2[label="queue$2.this(ArrayBuffer)\n MyQueue"]
-        queue2_put[label="queue$2.put()\n MyQueue with Factorial"]
-        print2[color=black,fillcolor=lightblue,label="scala.this.Predef.println(queue$2.toString())"]
-	main [shape=Mdiamond,color=black fillcolor=lightblue];
-	box[color=black,fillcolor=lightblue,label="scala.Int.box(Int)"]
-        main -> arrayBuffer;
-        main -> queue1
-        main -> queue1_put
-        main -> print1
-        main -> queue2
-        main -> queue2_put
-        main -> print2
-        label = "QueueTest.main";
-    }
-    subgraph queue1_put_graph{
-	q1_put[label="buf().$plus$eq(Int)\n ArrayBuffer"]
-	queue1_put->box
-	queue1_put->q1_put
-    }
-    subgraph queue2_put_graph{
-	q2_put[label=" put()\n MyQueue"]
-	fac[label="fac[Int]\n MyQueue with Factorial"]
-	fac->fac
-	fac->box
-	queue2_put->q2_put
-	queue2_put->fac
-	queue2_put->q1_put
-	
-    }
-    subgraph print1_graph{
-	color=blue;
-	buf1_str[label="buf().toString()\n ArrayBuffer"]
-	q1_plus[label="\"Queue1 \".$plus(String)\n String"]
-	print1->buf1_str
-	print1->q1_plus
-    }
-    subgraph print2_graph{
-	color=blue;
-	buf2_str[label="buf().toString()\n ArrayBuffer"]
-	q2_plus[label="\"Queue2 \".$plus(String)\n String"]
-	print2->buf2_str
-	print2->q2_plus
-    }
+        graph [ranksep=0,fontsize=30 labelloc="t" label="" splines=true overlap=false]
+        node [shape=record]
+        subgraph Main {
+                style=filled
+                color=lightgrey
+                node [shape=box3d,style=filled]
+                arrayBuffer[label="arrayBuffer.apply[Int](elems:Int*)\n ArrayBuffer"]
+                queue1[label="queue$1.this(ArrayBuffer)\n BasicIntQueue"]
+                queue1_put[label="queue$1.put()\n BasicIntQueue"]
+                print1[color=black,fillcolor=lightblue,style=filled,label="scala.this.Predef.println(queue$1.toString()"]
+                queue2[label="queue$2.this(ArrayBuffer)\n MyQueue"]
+                queue2_put[label="queue$2.put()\n MyQueue with Factorial"]
+                print2[color=black,fillcolor=lightblue,label="scala.this.Predef.println(queue$2.toString())"]
+                main [shape=Mdiamond,color=black fillcolor=lightblue]
+                box[color=black,fillcolor=lightblue,label="scala.Int.box(Int)"]
+                main -> arrayBuffer
+                main -> queue1
+                main -> queue1_put
+                main -> print1
+                main -> queue2
+                main -> queue2_put
+                main -> print2
+                label = "QueueTest.main";
+        }
+        subgraph queue1_put_graph{
+                q1_put[label="buf().$plus$eq(Int)\n ArrayBuffer"]
+                queue1_put->box
+                queue1_put->q1_put
+        }
+        subgraph queue2_put_graph{
+                q2_put[label=" put()\n MyQueue"]
+                fac[label="fac[Int]\n MyQueue with Factorial"]
+                fac->fac
+                fac->box
+                queue2_put->q2_put
+                queue2_put->fac
+                queue2_put->q1_put
+
+}
+subgraph print1_graph{
+        color=blue;
+        buf1_str[label="buf().toString()\n ArrayBuffer"]
+        q1_plus[label="\"Queue1 \".$plus(String)\n String"]
+        print1->buf1_str
+        print1->q1_plus
+}
+subgraph print2_graph{
+        color=blue;
+        buf2_str[label="buf().toString()\n ArrayBuffer"]
+        q2_plus[label="\"Queue2 \".$plus(String)\n String"]
+        print2->buf2_str
+        print2->q2_plus
+}
 }

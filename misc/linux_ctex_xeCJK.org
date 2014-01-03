@@ -1,0 +1,11 @@
+* Using [[http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz][Online Installation Script]] to install [[http://www.tug.org/texlive/][texlive]]
+* Get simplified Chinese Fonts From Windows
+** Inside ~C:/windows/fonts~, search *sim*(for "simplified Chinese"; similarly "tra" for "traditional Chinese"), pick all those Chinese Fonts to Linux ~/.fonts/MSFonts
+** If Adobe Fonts are also needed, go to {Adobe_installation_directory}/Resource, pick the related fonts inside subdirectory ~CIDFont~ and ~Font~ into ~/.fonts/Adobe
+** Run **fc-list** to make sure the related Fonts can be searched by ~fontconfig~
+* ctex uses ~winfonts~ by default, however xelatex cannot find the fonts correctly if we use ~zhmap~/~winfonts~. Replace contents of the *winfonts* fontset file(suppose it's texlive2013) with the following:
+#+INCLUDE: "ctex-xecjk-winfonts.def"
+
+* References:
+** http://tex.stackexchange.com/questions/147529/how-can-i-use-fonts-other-than-gbsn-gkai-for-cjk-chinese
+** ~texdoc ctex~
