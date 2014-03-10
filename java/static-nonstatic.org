@@ -1,6 +1,0 @@
-* non-static method
-** non-static or static method
-** non-static static field
-* static method:
-** static method
-** static field

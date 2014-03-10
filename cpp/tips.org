@@ -1,7 +1,7 @@
 * _inline_ in c++
-** had better to be used with _static_ in c++
-** had better to be *defined* in header files
-** is default if the function is defined inner Class
+** used with _static_ in c++
+** *defined* in header files
+** default if the function is defined inner Class
 ** inline function can be defined several times
 ** if interface separation is adapted, both declaration and definition need the keyword
 * always use expression without side effect in `assert` macro

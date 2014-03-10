@@ -1,22 +1,8 @@
 ### 游戏或其他flash中文显示乱码
 rm /etc/fonts/conf.d/49-sansserif.conf
 
-### 64位系统安装32位软件，先装32位库
-
-1. apt-get install ia32-libs*
-1. dpkg -i --force-architecture XXX.deb
-1. dpkg -P packagename   #packagename是软件名，新利得看到的那个
-
 ### 使启动程序并行，加速启动过程
 (/etc/init.d/rc) NCURRENCY=none => CONCURRENCY=shell
-
-### 程序预加载, 它能智能的根据你日常的软件使用习惯预加载大多数一般用到的lib文件和应用程序
-  apt-get install preload
-
-### 改变系统对于swap的写入
-默认的vm.swappiness值是60,这一默认值已经很合适了。但你可以改小一些降低swap的加载，系统性能会有一点点的提升 建议内存为512m或更多的童鞋采用这个方法，使你的系统对于swap的写入尽可能的少，同时尽可能多的使用你的实际内存。在切换应用程序时有着巨大的作用
-susysctl vm.swappiness=10
-如果想永久得改变这一值，需要更改/etc/sysctl.conf 文件，在最后添加 vm.swappiness=10  #1G内存推荐值为5，2G内存推荐值为3，不推荐把值设为0, 重启生效
 
 ### 安装sysv-rc-conf，禁止掉那些你不需要启动的服务
     apt-get install sysv-rc-confsysv-rc-conf
@@ -101,17 +87,42 @@ update-rc.d -f ?dm remove //?=k,g,x
 1.  dpkg --get-selections | sed 's/\s.*install$//g' >pkgs.txt
 1.  dpkg --get-selections | cut -f1 > pkgs.txt    (一行一个)
 
-### 统统删除mono和c#软件：
-apt-get remove --purge mono-common libmono0 libgdiplus && sudo rm -rf /usr/lib/mono
-
 ### 农历
 apt-get install lunarlunar --utf8 year month day [hour]
 
-### lftp遇到gb2312乱码
-vim ~/.ftp/rcset ftp:charset “gbk”set file:charset “UTF-8″alias cn “set ftp:charset gbk; set file:charset UTF-8″alias utf8 “set ftp:charset UTF-8; set file:charset UTF-8″
-
-### 固定自己的dns
-修改resolve.conf后 chattr +i /etc/resolv.conf 要修改用chattr -i
-
 ### CLI连接无线网
 iwlist wlan0 scanningiwconfig wlan0 essid "fduwireless" channel --autoifconfig
+
+### dpkg
+``` bash
+dpkg --get-selections > install.list
+dpkg --set-selections <install.list   
+```
+
+### apt-get
+``` bash
+apt-get dselect-upgrade 
+apt-get source $package_name --download-only  #--compile
+apt-get --ignore-hold --allow-unauthenticated -s dist-upgrade | grep ^Inst | cut -d ' ' -f2 | sort #list upgrade-able packages
+apt-get build-dep pack-foo
+```
+
+### aptitude
+
+``` bash
+​​aptitude markauto pack-foo # mark as auto-installed,prefer to remove
+aptitude unmarkauto pack-foo #mark as mannually-installed
+aptitude install libcairo2=1.4.10-1ubuntu4 # force to downgrade
+aptitude forbid-version libcairo2=1.4.10-1ubuntu4.1 # forbid to install this version
+aptitude search foo bar # search matches 'foo' OR 'bar'
+aptitude search "foo bar" # search matches 'foo' AND 'bar'
+aptitude purge `dpkg -l|grep '^rc'|awk '{print $2}'`
+```
+
+### apt-cache
+``` bash
+apt-cache pkgnames indent    #apt-cache search indent | awk '{if($1~/^indent$/) print $0}'
+```
+
+### apt-file
+### apt-build

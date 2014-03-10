@@ -180,3 +180,25 @@ for (( i = 0; i < $MAX; i++ )); do
   sleep 0.1
 done
 ```
+
+### archive
+
+```text
+test
+├── flx
+│   └── flx.txt
+└── flyer.txt
+```
+tar the directory into _test.tar.gz_, and get cetain depth file names.
+```bash
+tar tf test.tar.gz|cut -d/ -f2 |uniq
+tar tf test.tar.gz|head -1|cut -d/ -f1
+```
+
+###wget
+```bash
+wget -r -np -nd --accept=iso http://example.com/centos-5/i386/    #recursively,don't traverse parent dir,don't re-construct locally,only accept iso files
+wget -i filename.txt                         #get urls from filename.txt
+wget -c http://example.com/really-big-file.iso  #Continue getting a partially-downloaded file
+wget -m -k (-H) http://www.example.com/      #mirror a site
+```

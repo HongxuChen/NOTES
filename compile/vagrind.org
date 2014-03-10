@@ -1,2 +1,0 @@
-http://valgrind.org/docs/manual/cl-manual.html
-callgrind:  a call-graph generating cache and branch prediction profiler
