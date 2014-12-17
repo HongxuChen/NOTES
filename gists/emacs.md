@@ -1,7 +1,7 @@
 See http://blog.interlinked.org/tutorials/emacs.html
 
 
-```
+``` shell
 C-x C-w    #write file,prompt for name
 
 C-d        #delete next char
