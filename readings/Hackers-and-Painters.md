@@ -1,4 +1,4 @@
-* Why Nerds Are Unpopular
+# Why Nerds Are Unpopular
 
 Being smart seems to make you unpopular.
 
@@ -8,7 +8,7 @@ To them the thought of average intelligence is unbearable.
 
 Nerds serve two masters. They want to be popular, certainly, but they want even more to be smart.
 
-No art, however minor, demands less total dedication if you wanted to excel in it.    -- Alberti
+No art, however minor, demands less total dedication if you wanted to excel in it.    &#x2013; Alberti
 
 Popular isn't just something you are or you aren't, but something you make yourself.
 
@@ -81,7 +81,7 @@ Teenage kids, even rebels, don't like to be alone, so when kids opt out of the s
 
 Freaks and nerds were allies, and there was a good deal of overlap between them.
 
-No doubt some of the freaks ultimately used drugs to escape from other problems ---- trouble at home, for example. But, in my school at least, the reason most kids started using drugs was rebellion.
+No doubt some of the freaks ultimately used drugs to escape from other problems -&#x2014; trouble at home, for example. But, in my school at least, the reason most kids started using drugs was rebellion.
 
 Misrule breeds rebellion.
 
@@ -91,17 +91,17 @@ School is a strange, artificial thing, half sterile and half feral. It's all-enc
 
 Several problems we take for granted are in fact not insoluble after all.
 
-* Hackers and Painters
+# Hackers and Painters
 
 Hacking and painting have a lot in common. In fact, of all the different types of people I've known, hacker and painters are among the most alike.
 
 What hackers and painters have in common is that they're both makers.
 
-I've never liked the term "computer science". The main reason I don't like it is that there's no such thing. Computer science is grab bag of tenuously related areas thrown together by an accident of history, like Yugoslavia. At one end you have people who are really mathematicians, but call what they're doing computer science so they can get DARPA grants. In the middle you have people working on something like the natural history of computers -- studying the behavior of algorithms for routing data through networks, for example. And then at the other extreme you have the hackers, who are trying to write interesting software, and for whom computers are just a medium of expression, as concrete is for architects or paint for painters. It's as if mathematicians, physicist, and architects all had to be in the same department.
+I've never liked the term "computer science". The main reason I don't like it is that there's no such thing. Computer science is grab bag of tenuously related areas thrown together by an accident of history, like Yugoslavia. At one end you have people who are really mathematicians, but call what they're doing computer science so they can get DARPA grants. In the middle you have people working on something like the natural history of computers &#x2013; studying the behavior of algorithms for routing data through networks, for example. And then at the other extreme you have the hackers, who are trying to write interesting software, and for whom computers are just a medium of expression, as concrete is for architects or paint for painters. It's as if mathematicians, physicist, and architects all had to be in the same department.
 
 Sometimes what the hackers do is called "software engineering", but this term is just as misleading. Good software designers are no more engineers than architects are. The border between architecture and engineering is not sharply defined, but it's there. It falls between what and how: architects decide what to do, and engineers figure out how to do it.
 
-What and how should not be kept too separate. You're asking for trouble if you try to decide what to do without understanding how to do it. But hacking can certainly be more than just deciding how to implement some spec. At least, it's creating the spec -- through it turns out the best way to do that is to implement it.
+What and how should not be kept too separate. You're asking for trouble if you try to decide what to do without understanding how to do it. But hacking can certainly be more than just deciding how to implement some spec. At least, it's creating the spec &#x2013; through it turns out the best way to do that is to implement it.
 
 Perhaps one day "computer science" will, like Yugoslavia, get broken up into its component parts.
 
@@ -113,7 +113,7 @@ The mathematicians don't seem to bothered by this. They happily set to work prov
 
 In the best case, the papers are just a formality. Hackers write software, and then write a paper about it, and the paper becomes a proxy for the achievement represented by the software. But often this mismatch causes problems, It's easy to drift away from building beautiful things toward building ugly things that make more suitable subjects for research papers.
 
-Unfortunately, beautiful things don't always make the best subjects for papers. Number one, research must be original -- and as anyone who has written a PhD dissertation knows, the way to be sure you're exploring virgin territory is to stake out a piece of ground that on one wants. Number two, research must be substantial -- and awkward systems yield meatier papers, because yo can write about the obstacles you have to overcome in order to get things done.Nothing yields meaty problems like starting with the wrong assumptions. Most of AI is an example of this rule; if you assume that knowledge can be represented as a list of predicate logic expressions whose arguments represent abstract concepts, you'll  have a lot of papers to write about how to make this work. As Ricky Ricardo used to say, "Lucy, you got a lot of explaining to do."
+Unfortunately, beautiful things don't always make the best subjects for papers. Number one, research must be original &#x2013; and as anyone who has written a PhD dissertation knows, the way to be sure you're exploring virgin territory is to stake out a piece of ground that on one wants. Number two, research must be substantial &#x2013; and awkward systems yield meatier papers, because yo can write about the obstacles you have to overcome in order to get things done.Nothing yields meaty problems like starting with the wrong assumptions. Most of AI is an example of this rule; if you assume that knowledge can be represented as a list of predicate logic expressions whose arguments represent abstract concepts, you'll  have a lot of papers to write about how to make this work. As Ricky Ricardo used to say, "Lucy, you got a lot of explaining to do."
 
 The way to create something beautiful is often to make subtle tweaks to something that already exists, or to combine existing ideas in a slightly new way. This kind of work is hard to convey in a research paper.
 
@@ -165,11 +165,11 @@ Maybe it would be good for hackers to act more like painters, and regularly star
 
 Hackers start original, and get good, and scientists start good, and get original.
 
-Hackers can learn to program by looking at good programs -- not just at what they do, but at the source code.
+Hackers can learn to program by looking at good programs &#x2013; not just at what they do, but at the source code.
 
 It's unrealistic to expect that the specifications for a program will be perfect.
 
-we should be just be as worried about premature design -- deciding too early what a program should do.
+we should be just be as worried about premature design &#x2013; deciding too early what a program should do.
 
 A good programming language should, like oil paint, make it easy to change your mind.
 
@@ -211,7 +211,7 @@ A new medium appears, and people are so excited about it that they explore most 
 
 How cool hacking turns out to be will depend on what we can do with this new medium.
 
-* What You Can't Say
+# What You Can't Say
 
 Fashion is mistaken for good design; moral fashion is mistaken for good.
 
@@ -277,7 +277,7 @@ From one end of a pendulum's swing, the other end seems especially fa away.
 
 Always be questioning. That's the only defence.
 
-* Good Bad Attitude
+# Good Bad Attitude
 
 There is a gradual continuum between rule breaking that's merely ugly and rule breaking that is brilliantly imaginative.
 
@@ -289,7 +289,7 @@ Hackers are unruly. That is the essence of hacking.
 
 The spirit of resistance to government is so valuable on certain that I will it always to be kept alive. Thomas Jefferson
 
-* The other Road Ahead
+# The other Road Ahead
 
 The whole idea of "your computer" is going away, and being replace with "your data".
 
@@ -309,7 +309,7 @@ Money is a way of moving wealth, and in practice they are usually interchangeabl
 Money is a side effect of specialization.
 There is not a fixed a mount of wealth in the world.
 
-The world is -- and you especially are -- one pristine old car the richer.
+The world is &#x2013; and you especially are &#x2013; one pristine old car the richer.
 
 You can't make the pie large.
 
@@ -355,7 +355,7 @@ Without the incentive of wealth, no one wants to do it.
 
 The same recipe that make individual rich make countries powerful.
 
-* Mind the Gap
+# Mind the Gap
 
 Perhaps the CEO or the professional athlete has only ten times(Whatever that means) the skill and determination of an ordinary person. But it makes all the difference that it's concentrated in one individual.
 
@@ -368,13 +368,13 @@ Will people create if they can't get paid for it? Only if it's fun.
 
 Society as a whole ends up poorer.
 
-* A Plan for Spam
+# A Plan for Spam
 
 It's absolute poverty you want to avoid, not relative poverty.
 
 If you compete with slaves you become a slave.
 
-* Taste for Makers
+# Taste for Makers
 
 Good design is simple.
 
@@ -395,7 +395,7 @@ Good design is often slightly funny.
 
 Humor is related to strength.
 
-The mark -- or at least the prerogative -- of strength is not to take oneself too seriously.
+The mark &#x2013; or at least the prerogative &#x2013; of strength is not to take oneself too seriously.
 
 Good design may not have to be funny, but it's hard to imagine something could be called humorless also being good design.
 

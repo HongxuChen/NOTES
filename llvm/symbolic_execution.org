@@ -1,4 +1,5 @@
-#+TITLE: Symbolic Execution
+#+TITLE: Symbolic Execution 
+#+OPTIONS: toc:nil
 The link is here[fn:1]
 [fn:1] http://www.cs.umd.edu/class/fall2011/cmsc631/lectures/sym.pdf
 
