@@ -1,0 +1,5 @@
+- klee-last/info
+- `queries` for each query, EQUAL to `queryCounterexamples`
+- valid queries: used for stp, when (forked) stp `runAndGetCexForked` succeed, increment; other wise invalidQueries increase 1
+- klee/lib/Solver/Solver.cpp:710
+- `static.forks` == paths
