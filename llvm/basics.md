@@ -1,4 +1,4 @@
-# clang compilation optzn
+# clang optimization levels
 
 ```
 -O3 : throw everything and hope it sticks
