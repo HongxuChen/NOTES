@@ -22,8 +22,8 @@ The insight: the lifespan of the variable in the right-hand-side
   void foo(T&&);
   ```
 
-1. When foo is called on an lvalue of type A, `T => A&`
-1.  When foo is called on an rvalue of type A, `T => A&&`
+1. When foo is called on an lvalue of type `A`, `T => A&`
+1.  When foo is called on an rvalue of type `A`, `T => A&&`
 
 # Move Semantics: `std::move`
 
@@ -34,7 +34,7 @@ The insight: the lifespan of the variable in the right-hand-side
   }
   ```
 
-1. Turns its argument into an rvalue even if it isn't
+1. Turn its argument into an rvalue even if it isn't
 1. No name will be generated
 1. only change the type for rvalue
 
