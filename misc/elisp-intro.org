@@ -1,5 +1,3 @@
-[fn:1] Actually a PDF version.
-
 * Hello world
 * Fundamentals
 ** Unlike =setq=, =defvar= would not change the value if it has already been defined.
