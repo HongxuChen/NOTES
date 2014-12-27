@@ -127,3 +127,11 @@ additional 204 BUSYBOX, 77 MINIX utilities
 * The KLEE Architecture
 * NOTES:
 KLEE solves the current PC when hitting an error or a path reaches ~exit~ \rightarrow ktest
+
+source-code
+===========
+klee-last/info
+queries for each query, EQUAL to queryCounterexamples
+valid queries: used for stp, when (forked) stp runAndGetCexForked succeed, increment; other wise invalidQueries increase 1
+klee/lib/Solver/Solver.cpp:710
+static.forks == paths
