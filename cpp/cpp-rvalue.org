@@ -1,3 +1,5 @@
+#+OPTIONS: TOC:nil
+
 Basically referred to [[http://thbecker.net/articles/rvalue_references/section_01.html][C++ Rvalue References Explained]]
 
 * No-Name Rule
