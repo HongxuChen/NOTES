@@ -1,1 +1,1 @@
-The notes, as it is.
+My random notes.
