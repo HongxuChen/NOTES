@@ -1,0 +1,4 @@
+- scientific graphing: <strike>igor pro, matlab</strike>, ipython notebook
+- mindmap: xmind, mindjet, thebrain
+- diff: Kaleidoscope, Araxis Merge, beyond compare
+- graph: Diagrammix, omnigraffle
