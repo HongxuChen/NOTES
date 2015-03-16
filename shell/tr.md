@@ -15,3 +15,4 @@ CHAR1-CHAR2,[CHAR*],[CHAR*REPEAT],[:alnum:],[:alpha:],[:blank:],[:cntrl:],[:digi
 - echo  -e "This\t is for or testing" | tr [:space:] | wc -l
 - echo "my number is 19890806" | tr -d [:digit:]
 - echo "my number is 19890806" | tr -cd [:digit:]
+- echo $PATH | tr ":" "\n"
