@@ -1,4 +1,4 @@
-*** Java Language Specification 14.21.[[http://docs.oracle.com/javase/specs/jls/se7/html/jls-14.html#jls-14.21][Unreachable Statements]]
+*** JLS 14.21.[[http://docs.oracle.com/javase/specs/jls/se7/html/jls-14.html#jls-14.21][Unreachable Statements]]
 
 It is a *compile-time error* if a statement cannot be executed because it is unreachable.
 Except for the special treatment of *while*, *do*, and *for* statements(without *if*!) whose condition expression has the constant value *true*, the values of expressions are not taken into account in the flow analysis.
