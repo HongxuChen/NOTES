@@ -3,7 +3,7 @@
 (cmd | tee stdout.log) 3>&1 1>&2 2>&3 | tee stderr.log
 ```
 
-### used in scripts, get self name
+### script gets self name
 ```bash
 basename "$(test -L "$0" && readlink "$0" || echo "$0")"
 ```
@@ -58,4 +58,23 @@ chfn -f new_fullname new_username
 
 # sudo settings
 username ALL=(ALL) NOPASSWD: ALL
+```
+
+# tr
+```bash
+## usage
+# tr [OPTION] SET1 [SET2]  
+# CHAR1-CHAR2,[CHAR*],[CHAR*REPEAT],[:alnum:],[:alpha:],[:blank:],[:cntrl:],[:digit:],[:graph:],[:lower:],[:print:],[:punct:],[:space:],[:upper:],[:xdigit:]
+
+## interactive mode
+tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
+tr [:lower:] [:upper:]
+tr a-z A-Z
+
+## pipe mode
+tr '{}' '()' < inputfile > outputfile
+echo  -e "This\t is for or testing" | tr [:space:] | wc -l
+echo "my number is 19890806" | tr -d [:digit:]
+echo "my number is 19890806" | tr -cd [:digit:]
+echo $PATH | tr ":" "\n"
 ```
