@@ -1,4 +1,4 @@
-### print outputs to console and files
+### output to console+files
 ```bash
 (cmd | tee stdout.log) 3>&1 1>&2 2>&3 | tee stderr.log
 ```
@@ -10,26 +10,18 @@ basename "$(test -L "$0" && readlink "$0" || echo "$0")"
 
 ### System and resources
 ```bash
-chkconfig --list|grep 1:on   #List all system service that is *on* on Level 1:
-grep MemFree /proc/meminfo   #free memory
-cat /etc/lsb-release         #*head -n 1 /etc/issue* or *lsb_release -d*
-lspci -tv                    #list all pci device
-cat /proc/loadavg            #view system  average load
-swapon -s                    #view swap
-sudo iptables -L             #view firewall settings
-id                           #view user id
-last                         #login log
-crontab -l                   #view jobs for current user
+chkconfig --list|grep 1:on   # List all system service that is *on* on Level 1:
+grep MemFree /proc/meminfo   # free memory
+cat /etc/lsb-release         # head -n 1 /etc/issue* or *lsb_release -d*
+lspci -tv                    # list all pci device
+cat /proc/loadavg            # view system  average load
+swapon -s                    # view swap
+sudo iptables -L             # view firewall settings
+id                           # view user id
+last                         # login log
+crontab -l                   # view jobs for current user
 cut -d: -f1 /etc/passwd      # view all users
 cut -d: -f1 /etc/group       # all groups
-```
-
-###wget
-```bash
-wget -r -np -nd --accept=iso http://example.com/centos-5/i386/    #recursively,don't traverse parent dir,don't re-construct locally,only accept iso files
-wget -i filename.txt                         #get urls from filename.txt
-wget -c http://example.com/really-big-file.iso  #Continue getting a partially-downloaded file
-wget -m -k (-H) http://www.example.com/      #mirror a site
 ```
 
 ### change username
@@ -60,7 +52,7 @@ chfn -f new_fullname new_username
 username ALL=(ALL) NOPASSWD: ALL
 ```
 
-# tr
+### tr
 ```bash
 ## usage
 # tr [OPTION] SET1 [SET2]  
