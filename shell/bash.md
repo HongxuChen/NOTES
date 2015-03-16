@@ -67,3 +67,21 @@ old old.c old.tar.gz
 $ for file in old*;do mv $file new${file#old};done;ls
 new new.c new.tar.gz
 ```
+
+### interactive substitution
+
+```bash
+$N                 the Nth argument of previous command line (N=0,1,...)
+$M-N               the arguments list from M to N (both inclusive)
+$-N                DONT use it except !! (same as "!-1")
+# event designator !! can be abbreviated to ! when using a word designator
+!string             DONT use
+!?string?           DONT use
+!:^                 1st argument, "!:1"
+!:$                 last argument
+!:*                 all argument except 1st
+!:h                 dirname
+!:t                 basename
+!:r                 all but extension
+!:e                 file extension
+```                 
