@@ -1,17 +1,20 @@
-*.tar.gz
-*.tgz
-*.tar.bz2
-*.tar.xz
-*.html
+# Created by https://www.gitignore.io
 
-*.mm
+### Vim ###
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
 
-
+### Emacs ###
+# -*- mode: gitignore; -*-
 *~
 \#*\#
 /.emacs.desktop
 /.emacs.desktop.lock
-.elc
+*.elc
 auto-save-list
 tramp
 .\#*
@@ -20,47 +23,22 @@ tramp
 .org-id-locations
 *_archive
 
+# flymake-mode
+*_flymake.*
 
-.*.s[a-w][a-z]
-*.un~
-Session.vim
-.netrwhist
-*~
+# eshell files
+/eshell/history
+/eshell/lastdir
 
-a.out
+# elpa packages
+/elpa/
 
-*.acn
-*.acr
-*.alg
-*.aux
-*.bbl
-*.blg
-*.dvi
-*.fdb_latexmk
-*.glg
-*.glo
-*.gls
-*.idx
-*.ilg
-*.ind
-*.ist
-*.lof
-*.log
-*.lot
-*.maf
-*.mtc
-*.mtc0
-*.nav
-*.nlo
-*.out
-*.pdfsync
-*.ps
-*.snm
-*.synctex.gz
-*.toc
-*.vrb
-*.xdy
-*.tdo
-*.pdf
+# reftex files
+*.rel
 
-moonbox
+# AUCTeX auto folder
+/auto/
+
+# cask packages
+.cask/
+
