@@ -40,17 +40,17 @@ gcc -c SimpleSection.c #emit SimpleSection.o
 Sections:
 Idx Name          Size      VMA               LMA               File off  Algn
   0 .text         0000005c  0000000000000000  0000000000000000  00000040  2**2        # code section
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE                        
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
   1 .data         00000008  0000000000000000  0000000000000000  0000009c  2**2        # data section
-                  CONTENTS, ALLOC, LOAD, DATA                                         
+                  CONTENTS, ALLOC, LOAD, DATA
   2 .bss          00000004  0000000000000000  0000000000000000  000000a4  2**2        # Block Started by Symbol
-                  ALLOC                                                               
+                  ALLOC
   3 .rodata       00000004  0000000000000000  0000000000000000  000000a4  2**0        # readonly data
-                  CONTENTS, ALLOC, LOAD, READONLY, DATA                               
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
   4 .comment      0000002b  0000000000000000  0000000000000000  000000a8  2**0        # comments
-                  CONTENTS, READONLY                                                  
+                  CONTENTS, READONLY
   5 .note.GNU-stack 00000000  0000000000000000  0000000000000000  000000d3  2**0      # stack section
-                  CONTENTS, READONLY                                                  
+                  CONTENTS, READONLY
   6 .eh_frame     00000058  0000000000000000  0000000000000000  000000d8  2**3        # exception handling
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
 
@@ -76,22 +76,22 @@ Contents of section .text:
  0020 0000c9c3 554889e5 4883ec20 897dec48  ....UH..H.. .}.H
  0030 8975e0c7 45f80100 00008b15 00000000  .u..E...........
  0040 8b050000 000001d0 0345f803 45fc89c7  .........E..E...
- 0050 e8000000 00b80000 0000c9c3           ............    
+ 0050 e8000000 00b80000 0000c9c3           ............
 Contents of section .data:
- 0000 54000000 55000000                    T...U...        
+ 0000 54000000 55000000                    T...U...
 Contents of section .rodata:
- 0000 25640a00                             %d..            
+ 0000 25640a00                             %d..
 Contents of section .comment:
  0000 00474343 3a202855 62756e74 752f4c69  .GCC: (Ubuntu/Li
  0010 6e61726f 20342e36 2e332d31 7562756e  naro 4.6.3-1ubun
- 0020 74753529 20342e36 2e3300             tu5) 4.6.3.     
+ 0020 74753529 20342e36 2e3300             tu5) 4.6.3.
 Contents of section .eh_frame:
  0000 14000000 00000000 017a5200 01781001  .........zR..x..
  0010 1b0c0708 90010000 1c000000 1c000000  ................
  0020 00000000 24000000 00410e10 8602430d  ....$....A....C.
  0030 065f0c07 08000000 1c000000 3c000000  ._..........<...
  0040 00000000 38000000 00410e10 8602430d  ....8....A....C.
- 0050 06730c07 08000000                    .s......        
+ 0050 06730c07 08000000                    .s......
 
 Disassembly of section .text:
 
@@ -106,8 +106,8 @@ Disassembly of section .text:
   15:	48 89 c7             	mov    %rax,%rdi
   18:	b8 00 00 00 00       	mov    $0x0,%eax
   1d:	e8 00 00 00 00       	callq  22 <func1+0x22>
-  22:	c9                   	leaveq 
-  23:	c3                   	retq   
+  22:	c9                   	leaveq
+  23:	c3                   	retq
 
 0000000000000024 <main>:
   24:	55                   	push   %rbp
@@ -124,8 +124,8 @@ Disassembly of section .text:
   4e:	89 c7                	mov    %eax,%edi
   50:	e8 00 00 00 00       	callq  55 <main+0x31>
   55:	b8 00 00 00 00       	mov    $0x0,%eax
-  5a:	c9                   	leaveq 
-  5b:	c3                   	retq   
+  5a:	c9                   	leaveq
+  5b:	c3                   	retq
 ```
 # ELF format
 
@@ -135,7 +135,7 @@ ELF header in linux is located is `/usr/include/elf.h`
 
 ```bash
 ELF Header:
-  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
   Class:                             ELF64
   Data:                              2's complement, little endian
   Version:                           1 (current)
@@ -193,4 +193,3 @@ Key to Flags:
   I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)
   O (extra OS processing required) o (OS specific), p (processor specific)
 ```
-

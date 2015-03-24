@@ -1,21 +1,18 @@
-```bash
-iostat
-cat /proc/meminfo
-mpstat
-nmon
-pmap
-ps 
-pstree
-sar
-strace
-tcddump
-htop
-uptime
-vmstat
-```
-
 tool name    |  description   |
 :------------|:---------------|
+iostat|
+cat /proc/meminfo|
+mpstat|
+nmon|
+pmap|
+ps|
+pstree|
+sar|
+strace|
+tcddump|
+htop|
+uptime|
+vmstat|
 arp | 操作arp的cache
 curl | 传输url；非常强大
 dhclient/dhcpd | dhcp客户端
@@ -46,7 +43,7 @@ iwconfig | 配置无线网络接口；试过但没配置成功过
 iwlist | 由无线接口获取更多无线信息细节
 mtr | 网络分析工具；可以有X和终端两种GUI
 netstat | 打印网络连接、路由表、接口统计分析、伪装连接、多播成员信息；强大，常用
-nc | TCP/IP瑞士军刀；对得起这描述，起源于bsd，是net cat而不是脑残>_<
+nc | TCP/IP瑞士军刀；对得起这描述，起源于bsd，net cat
 nmap | 网络查看、端口扫描；network mapper，传说非常牛逼
 nslookup | (可交互式)查询网络服务器；众所周知
 ntpdate | 通过ntp更新时间

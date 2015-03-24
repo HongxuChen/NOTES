@@ -2,7 +2,7 @@
 
 Romeo and Juliet is tragic because two lovers so nearly lived out their hearts and dreams, and lost everything. The tragedy is not their death: it’s the gap with what could have been instead.
 
-![img](../images/dream-tomorrow-tragedy.png)
+![img](./images/dream_tomorrow_tragedy.png)
 
 "We could have had it all" sung Adele, and in six words she summed up every heartbreak ever: the feeling of something that could have been, but was not.
 
@@ -16,7 +16,7 @@ Well, tough. Brains be stupid.
 
 The problem with our instinctive sense of tragedy is it teaches us to avoid anything where a potential gain might be lost. The bigger the potential gain, the greater our aversion:
 
-![img](../images/dream-tomorrow-aversion.png)
+![img](./images/dream_tomorrow_aversion.png)
 
 Take young Walt. Walt is an awkward, lonely soul, afraid to approach any girl he likes. To anyone but him, clearly the fastest, best way he could improve his lot would be to just try anyway. Fail and try again. If he could bring himself to do this consistently, he’d probably be Captain Prince Darcy Charming before a year was out. Yet he couldn’t imagine anything more terrifying.
 

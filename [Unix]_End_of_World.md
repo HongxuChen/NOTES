@@ -1,5 +1,4 @@
-Reference:
-[关于Unix世界末日的调查报告](http://www.soimort.org//posts/129/index.html)
+Reference: [关于Unix世界末日的调查报告](http://www.soimort.org//posts/129/index.html)
 
 View _date_ on the end of the world:
 ```bash
@@ -28,7 +27,7 @@ int main()
 }
 ```
 
-The following is only available for 64bit Linux with `export TZ="UTC"`:  
+The following is only available for 64bit Linux with `export TZ="UTC"`:
 
 ```bash
 touch -m -t 208010171017.50 nonoob
@@ -41,7 +40,7 @@ Access: (0644/-rw-r--r--)  Uid: ( 1000/ soimort)   Gid: (  100/   users)
 Access: 2106-02-07 06:28:16.000000000 +0000
 Modify: 2080-10-17 10:17:50.000000000 +0000
 Change: 2012-12-23 05:10:08.676071207 +0000
- Birth: 
+ Birth:
 ```
 
 The result of `Sleuth Kit`(`sleuthkit` in Ubuntu):
@@ -54,7 +53,7 @@ Group: 85
 Generation Id: 615696007
 uid / gid: 1000 / 1000
 mode: rrw-rw-r--
-Flags: 
+Flags:
 size: 0
 num of links: 1
 

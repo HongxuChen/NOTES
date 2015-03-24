@@ -1,5 +1,3 @@
-#+TITLE: Emacs tricks
-
 * docstring
 #+BEGIN_SRC elisp
 (defun test-docstring nil
@@ -227,4 +225,3 @@ src_emacs-lisp{(list 'foo default-directory 'bar)}.
 (memq 1.0 '(1.0 2.0))   ;; nil
 (member 1.0 '(1.0 2.0)) ;; (1.0 2.0)
 #+END_SRC
-
