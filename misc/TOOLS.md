@@ -1,6 +1,0 @@
-- scientific graphing: <strike>igor pro, matlab</strike>, ipython notebook
-- mindmap: xmind, mindjet, thebrain
-- diff: Kaleidoscope, Araxis Merge, beyond compare
-- graph: Diagrammix, omnigraffle
-- video creator: camtasia, ripcorder screen, screenflow
-- video player: xbmc, vlc, movist, mplayerx
