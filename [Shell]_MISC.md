@@ -1,6 +1,6 @@
 ### output to console+files
 ```bash
-(cmd | tee stdout.log) 3>&1 1>&2 2>&3 | tee stderr.log
+{{cmd} > >(tee stdout.log);} 2> >(tee stderr.log)    
 ```
 
 ### script gets self name
