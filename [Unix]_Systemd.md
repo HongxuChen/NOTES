@@ -10,3 +10,14 @@
 - `systemctl show-environment`
 - `systemctl list-timers/list-jobs/list-sockets/list-timers/list-unit-files/list-units`
 - `systemctl list-dependencies NetworkManager.service`
+
+
+## Journalctl
+- `journalctl -ex -b`
+- `journalctl --since=today -f`
+- `journalctl --vacuum-time=5m`
+- `journalctl --vacuum-size=10M`
+
+## hostnamectl
+
+## timedatectl
