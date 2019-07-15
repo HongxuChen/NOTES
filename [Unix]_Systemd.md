@@ -1,3 +1,6 @@
+## [systemd vs SysVinit](https://www.tecmint.com/systemd-replaces-init-in-linux/)
+
+
 ## Systemctl
 - `systemctl --failed`
 - `systemctl start/restart/reload/stop unit`
