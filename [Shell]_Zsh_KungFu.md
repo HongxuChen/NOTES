@@ -8,5 +8,5 @@ autoload -U zmv
 
 ```
 # rename files in current directory to 6-leading-zero-numbered files with extensions ".mp4"
-c=1 zmv "*" "${(l:6::0:)$((c++))}.mp4"
+c=1 zmv '*' '${(l:6::0:)$((c++))}.mp4'
 ```
